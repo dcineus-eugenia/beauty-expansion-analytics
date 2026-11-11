@@ -40,9 +40,11 @@ print(countries[countries["vat_rate"] < 0.21])      # filter rows with a conditi
 
 # EXERCISE 2.1: show countries with a beauty market above 2 bn €.
 # print(countries[...])
+print(countries[countries["beauty_market_bn_eur"] > 2])
 
 # EXERCISE 2.2: combine two conditions with & (and), each wrapped in parentheses:
 # market above 2 bn AND VAT at or below 0.21.
+print(countries[(countries["beauty_market_bn_eur"] > 2) & (countries["vat_rate"] <= 0.21)])
 
 # ---------------------------------------------------------------------------
 # 3. New columns = new KPIs (vectorised: no loop needed)
@@ -58,7 +60,7 @@ print(countries[["country", "spend_per_capita_eur", "stores_per_m_inhab"]].round
 # EXERCISE 3.1: add a column `market_per_store_m_eur`: beauty market (in M€) divided by
 # competitor stores. It's a rough estimate of revenue per existing store. Which country looks
 # the least crowded?
-
+countries["market_per_store_m_eur"] = countries["beauty_market_bn_eur"] * 1e3 / countries["competitor_stores"]
 # ---------------------------------------------------------------------------
 # 4. Sort and rank
 # ---------------------------------------------------------------------------
@@ -70,7 +72,7 @@ countries["rank_density"] = countries["stores_per_m_inhab"].rank(ascending=True)
 countries["rank_spend"] = countries["spend_per_capita_eur"].rank(ascending=False)
 countries["naive_score"] = countries["rank_density"] + countries["rank_spend"]   # lower = better
 print(countries.sort_values("naive_score")[["country", "rank_spend", "rank_density", "naive_score"]])
-
+print(countries.sort_values("market_per_store_m_eur", ascending=False)[["country", "market_per_store_m_eur"]])
 # ---------------------------------------------------------------------------
 # 5. groupby: aggregate by a category
 # ---------------------------------------------------------------------------
@@ -93,5 +95,5 @@ print(f"\n=== 6. Saved to {out}, reloaded {len(reloaded)} rows ===")
 
 # EXERCISE 6.1: also save it as Excel with .to_excel("data/interim/countries_practice.xlsx", index=False)
 # and open it in Excel/Numbers to check.
-
+countries.to_excel("data/interim/countries_practice.xlsx", index=False)
 print("\n✅ Module 01 done. Next: module 02, reading messy Excel financials.")

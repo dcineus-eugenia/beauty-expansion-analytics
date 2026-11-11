@@ -41,6 +41,8 @@ print("\n=== 2. Lists ===")
 print("First candidate:", candidate_countries[0])     # indexes start at 0
 print("Last candidate:", candidate_countries[-1])     # -1 = last item
 print("How many:", len(candidate_countries))
+candidate_countries.append("Switzerland")
+print(candidate_countries)
 
 # EXERCISE 2.1: add "Switzerland" to the list with .append(), then print the list.
 # candidate_countries.append(...)
@@ -71,11 +73,12 @@ countries = [
     {"country": "Belgium",     "code": "BE", "population_m": 11.8, "vat_rate": 0.21, "beauty_market_bn_eur": 2.6},
     {"country": "Ireland",     "code": "IE", "population_m": 5.3,  "vat_rate": 0.23, "beauty_market_bn_eur": 1.0},
 ]
+print(countries[2]["country"], countries[2]["population_m"])
+
 
 # EXERCISE 3.1: print Austria's population using the `countries` list.
 # Hint: Austria is at index 2, and each item is a dict.
 # print(countries[...][...])
-
 # ---------------------------------------------------------------------------
 # 4. Loops and conditions
 # ---------------------------------------------------------------------------
@@ -90,6 +93,9 @@ for c in countries:
 # for c in countries:
 #     if ...:
 #         print(...)
+for c in countries:
+    if c["vat_rate"] < 0.21:
+        print(c["country"])
 
 # ---------------------------------------------------------------------------
 # 5. Functions: reusable logic
@@ -119,6 +125,8 @@ for c in countries:
 # def relative_price_index(...):
 #     ...
 # print(relative_price_index(23.0, 25.0))
+def relavtive_price_index(prince_target, price_france):
+    return price_target / price_france * 100
 
 # ---------------------------------------------------------------------------
 # 6. Putting it together: a first (naive) ranking
@@ -133,5 +141,5 @@ for rank, c in enumerate(ranked, start=1):
 
 # EXERCISE 6.1 (challenge): rank countries by spend per capita instead of market size.
 # Tip: define a small function first, then pass it as `key=`.
-
+ranked = sorted(countries, key=lambda c: c["beauty_market_bn_eur"] * 1e9 / (c["population_m"] * 1e6), reverse=True)
 print("\n✅ Module 00 done. Next: lessons/01_pandas_basics.py")
