@@ -1,4 +1,4 @@
-# European Expansion Study: [Company name]
+# European Expansion Study: Sephora
 
 > **Question from the Comex:** is opening stores in the target country feasible and profitable?
 > **Strategy horizon:** 2027–2029
@@ -11,9 +11,9 @@ _Fill each section as the matching module in [LEARNING_PATH.md](LEARNING_PATH.md
 
 | | |
 |---|---|
-| **Name** | _TODO_ (fictional) |
-| **Business** | Selective beauty & cosmetics retail: fragrance, make-up, skincare, haircare |
-| **Stores in France (X)** | _TODO_ (e.g. 180) |
+| **Name** | Sephora (LVMH group, *Selective Retailing* segment, listed on Euronext Paris via LVMH) |
+| **Business** | Selective beauty retail: fragrance, make-up, skincare, haircare; brands + Sephora Collection private label |
+| **Stores in France (X)** | _TODO_ (source: LVMH annual report / Sephora store locator) |
 | **Catalogue** | _TODO_ number of SKUs, brands, private label share |
 | **Target country** | _Chosen by the scoring model in module 07_ |
 | **Team** | _First name LAST NAME_ (role) × 3–4 |
@@ -50,9 +50,10 @@ _Star schema diagram goes here (module 06)._
 | Source | Type | Data | Why it's relevant | Refresh |
 |--------|------|------|-------------------|---------|
 | Eurostat | Open data API | population, GDP, HICP cosmetics, retail trade | official, comparable across EU | yearly/monthly |
-| OpenStreetMap (Overpass) | API | competitor store locations | free, geolocated | on demand |
+| OpenStreetMap (Overpass) | API | Sephora + competitor store locations (Douglas, Rossmann, dm, Kiko...) | free, geolocated; also confirms where Sephora is absent | on demand |
 | Retailer websites | Scraper | product prices | real shelf prices FR vs target | on demand |
-| Internal store P&L | Simulated internal DB (Excel) | revenue, COGS, rent per store | baseline for the business case | monthly |
+| LVMH annual reports | Public financials (Excel/PDF) | Selective Retailing revenue & operating margin | real baseline for Sephora's economics | yearly |
+| Internal store P&L | Simulated internal DB (Excel), calibrated on LVMH figures | revenue, COGS, rent per store | per-store business case | monthly |
 
 ## 4. Organisation & roadmap
 

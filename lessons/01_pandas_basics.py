@@ -18,11 +18,11 @@ pd.set_option("display.width", 120)
 # 1. Create a DataFrame from a list of dicts (same data as module 00)
 # ---------------------------------------------------------------------------
 countries = pd.DataFrame([
-    {"country": "Spain",       "code": "ES", "population_m": 48.6, "vat_rate": 0.21, "beauty_market_bn_eur": 9.5,  "competitor_stores": 420},
-    {"country": "Italy",       "code": "IT", "population_m": 59.0, "vat_rate": 0.22, "beauty_market_bn_eur": 12.0, "competitor_stores": 610},
     {"country": "Germany",     "code": "DE", "population_m": 84.5, "vat_rate": 0.19, "beauty_market_bn_eur": 15.5, "competitor_stores": 980},
-    {"country": "Belgium",     "code": "BE", "population_m": 11.8, "vat_rate": 0.21, "beauty_market_bn_eur": 2.6,  "competitor_stores": 150},
     {"country": "Netherlands", "code": "NL", "population_m": 17.9, "vat_rate": 0.21, "beauty_market_bn_eur": 3.6,  "competitor_stores": 260},
+    {"country": "Austria",     "code": "AT", "population_m": 9.2,  "vat_rate": 0.20, "beauty_market_bn_eur": 1.9,  "competitor_stores": 140},
+    {"country": "Belgium",     "code": "BE", "population_m": 11.8, "vat_rate": 0.21, "beauty_market_bn_eur": 2.6,  "competitor_stores": 150},
+    {"country": "Ireland",     "code": "IE", "population_m": 5.3,  "vat_rate": 0.23, "beauty_market_bn_eur": 1.0,  "competitor_stores": 70},
 ])
 
 print("=== 1. The DataFrame ===")
@@ -38,11 +38,11 @@ print(countries["country"])                         # one column -> a Series
 print(countries[["country", "vat_rate"]])           # several columns -> a DataFrame
 print(countries[countries["vat_rate"] < 0.21])      # filter rows with a condition
 
-# EXERCISE 2.1: show countries with a beauty market above 5 bn €.
+# EXERCISE 2.1: show countries with a beauty market above 2 bn €.
 # print(countries[...])
 
 # EXERCISE 2.2: combine two conditions with & (and), each wrapped in parentheses:
-# market above 5 bn AND VAT at or below 0.21.
+# market above 2 bn AND VAT at or below 0.21.
 
 # ---------------------------------------------------------------------------
 # 3. New columns = new KPIs (vectorised: no loop needed)
@@ -75,7 +75,7 @@ print(countries.sort_values("naive_score")[["country", "rank_spend", "rank_densi
 # 5. groupby: aggregate by a category
 # ---------------------------------------------------------------------------
 print("\n=== 5. groupby ===")
-countries["region"] = ["South", "South", "North", "North", "North"]
+countries["region"] = ["DACH", "Benelux", "DACH", "Benelux", "Anglo"]
 summary = countries.groupby("region").agg(
     countries=("country", "count"),
     total_market_bn=("beauty_market_bn_eur", "sum"),

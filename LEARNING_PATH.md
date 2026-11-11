@@ -4,7 +4,7 @@ This project teaches Python by answering the Comex's question:
 
 > **Is opening stores in the target country feasible and profitable?**
 
-The company is a French beauty and cosmetics retailer. We don't pick the country by hand.
+The company is **Sephora** (LVMH). We don't pick the country by hand.
 Python scores 5 candidate countries and the data chooses the winner.
 
 Each module is one script in `lessons/`. Run it, read the comments, then do the
@@ -31,9 +31,9 @@ python lessons/00_python_refresher.py
 
 | # | Script | You learn | Project output |
 |---|--------|-----------|----------------|
-| 02 | `02_excel_financials.py` | `pd.read_excel`, messy headers, types, missing values, dates, currency cleanup | clean **simulated internal data**: French store P&L |
+| 02 | `02_excel_financials.py` | `pd.read_excel`, messy headers, types, missing values, dates, currency cleanup | clean LVMH Selective Retailing financials and a **simulated store P&L** calibrated on them |
 | 03 | `03_api_eurostat.py` | `requests`, JSON, query parameters, pagination, error handling | population, GDP/capita, beauty spending, cosmetics price index, retail growth |
-| 04 | `04_api_openstreetmap.py` | Overpass API, geodata, haversine distance | competitor store locations (Sephora, Douglas, Primor, Kiko...) → competitive density |
+| 04 | `04_api_openstreetmap.py` | Overpass API, geodata, haversine distance | Sephora's current European footprint (to confirm candidates) and competitor stores (Douglas, Rossmann, dm, Kiko...) → competitive density |
 | 05 | `05_web_scraping.py` | `BeautifulSoup`, CSS selectors, politeness (robots.txt, delays), fallbacks | product prices FR vs target country → relative price index |
 
 ## Phase 3: Model the data (Modelling, 20 pts)
@@ -78,8 +78,13 @@ python lessons/00_python_refresher.py
 
 ## Candidate countries
 
-Spain, Italy, Germany, Belgium, Netherlands. You can change this in `lessons/00_python_refresher.py` and later in
-`src/beauty_expansion/config.py`.
+Sephora already has stores in much of Europe, including France, Spain, Italy and Portugal, so those aren't expansion targets.
+**Provisional** candidates are countries where we believe Sephora has no physical stores:
+**Germany, Netherlands, Austria, Belgium, Ireland**.
+
+⚠️ This list has not been checked yet. Module 04 queries OpenStreetMap for Sephora stores in each country and removes any
+candidate where Sephora is already present. Also check Sephora's website and the LVMH annual report. The final list goes
+in `src/beauty_expansion/config.py`.
 
 ## Progress tracker
 

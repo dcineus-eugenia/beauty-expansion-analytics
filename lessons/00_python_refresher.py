@@ -19,8 +19,8 @@ The numbers below are rough placeholders for practice. Real data arrives in modu
 # ---------------------------------------------------------------------------
 # A variable is a name pointing to a value. Python guesses the type for you.
 
-company_name = "Maison Éclat"   # str  (text). Rename it to your team's company!
-store_count_france = 180        # int  (whole number)
+company_name = "Sephora"        # str  (text). Part of LVMH (listed on Euronext Paris)
+store_count_france = 300        # int  (whole number). Placeholder: find the real figure in module 02
 avg_basket_eur = 42.5           # float (decimal number)
 is_listed = True                # bool (True / False)
 
@@ -35,14 +35,14 @@ print(f"{company_name} runs {store_count_france} stores, average basket {avg_bas
 # ---------------------------------------------------------------------------
 # 2. Lists: ordered collections
 # ---------------------------------------------------------------------------
-candidate_countries = ["Spain", "Italy", "Germany", "Belgium", "Netherlands"]
+candidate_countries = ["Germany", "Netherlands", "Austria", "Belgium", "Ireland"]
 
 print("\n=== 2. Lists ===")
 print("First candidate:", candidate_countries[0])     # indexes start at 0
 print("Last candidate:", candidate_countries[-1])     # -1 = last item
 print("How many:", len(candidate_countries))
 
-# EXERCISE 2.1: add "Portugal" to the list with .append(), then print the list.
+# EXERCISE 2.1: add "Switzerland" to the list with .append(), then print the list.
 # candidate_countries.append(...)
 # print(...)
 
@@ -51,29 +51,29 @@ print("How many:", len(candidate_countries))
 # ---------------------------------------------------------------------------
 # One dict = one record. This is how JSON from APIs will look in module 03.
 
-spain = {
-    "country": "Spain",
-    "code": "ES",
-    "population_m": 48.6,       # millions
-    "vat_rate": 0.21,
-    "beauty_market_bn_eur": 9.5,
+germany = {
+    "country": "Germany",
+    "code": "DE",
+    "population_m": 84.5,       # millions
+    "vat_rate": 0.19,
+    "beauty_market_bn_eur": 15.5,
 }
 
 print("\n=== 3. Dicts ===")
-print("Spain VAT:", spain["vat_rate"])
-print("Keys:", list(spain.keys()))
+print("Germany VAT:", germany["vat_rate"])
+print("Keys:", list(germany.keys()))
 
 # A list of dicts = a table. Each dict is a row. pandas (module 01) turns this into a DataFrame.
 countries = [
-    {"country": "Spain",       "code": "ES", "population_m": 48.6, "vat_rate": 0.21, "beauty_market_bn_eur": 9.5},
-    {"country": "Italy",       "code": "IT", "population_m": 59.0, "vat_rate": 0.22, "beauty_market_bn_eur": 12.0},
     {"country": "Germany",     "code": "DE", "population_m": 84.5, "vat_rate": 0.19, "beauty_market_bn_eur": 15.5},
-    {"country": "Belgium",     "code": "BE", "population_m": 11.8, "vat_rate": 0.21, "beauty_market_bn_eur": 2.6},
     {"country": "Netherlands", "code": "NL", "population_m": 17.9, "vat_rate": 0.21, "beauty_market_bn_eur": 3.6},
+    {"country": "Austria",     "code": "AT", "population_m": 9.2,  "vat_rate": 0.20, "beauty_market_bn_eur": 1.9},
+    {"country": "Belgium",     "code": "BE", "population_m": 11.8, "vat_rate": 0.21, "beauty_market_bn_eur": 2.6},
+    {"country": "Ireland",     "code": "IE", "population_m": 5.3,  "vat_rate": 0.23, "beauty_market_bn_eur": 1.0},
 ]
 
-# EXERCISE 3.1: print Germany's population using the `countries` list.
-# Hint: Germany is at index 2, and each item is a dict.
+# EXERCISE 3.1: print Austria's population using the `countries` list.
+# Hint: Austria is at index 2, and each item is a dict.
 # print(countries[...][...])
 
 # ---------------------------------------------------------------------------
