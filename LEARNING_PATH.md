@@ -1,5 +1,11 @@
 # Learning Path
 
+> **Status (2026-11-12):** the full project is built and runs end to end (`python -m beauty_expansion.pipeline`).
+> Modules 00–02 are written lessons. For modules 03–12, the finished code is your study material: each lesson maps
+> to a file in `src/beauty_expansion/` (03 → `extract/eurostat.py`, 04 → `extract/osm.py`, 05 → `extract/prices.py`,
+> 06 → `sql/schema.sql` + `load/warehouse.py`, 07 → `analysis/kpis.py` + `scoring.py`, 08 → `analysis/business_case.py`,
+> 09/11 → `app/streamlit_app.py`, 10 → `analysis/ai_summary.py`, 12 → `pipeline.py`).
+
 This project teaches Python by answering the Comex's question:
 
 > **Is opening stores in the target country feasible and profitable?**

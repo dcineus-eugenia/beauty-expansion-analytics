@@ -1,9 +1,14 @@
-# European Expansion Study: Sephora
+# European Expansion Study: Sephora 2027–2029
 
-> **Question from the Comex:** is opening stores in the target country feasible and profitable?
-> **Strategy horizon:** 2027–2029
+> **Comex question:** is opening Sephora stores in a new European country feasible and profitable?
+>
+> **Answer:** **CONDITIONAL GO for the Netherlands**, with a 15-store plan (3 → 8 → 15 stores, 2027–2029).
+> It ranks first under all 5 weightings tested. Base-case NPV **€76 M**, still positive if sales come in 20 % below
+> plan (€20 M), but store payback is **5.0 years**, above the 4-year target. **Ireland is the Plan B**: better
+> store economics (NPV €90 M, payback 4.5 years) but a smaller, harder-to-supply market.
 
-_Fill each section as the matching module in [LEARNING_PATH.md](LEARNING_PATH.md) is completed._
+_All figures are produced by the pipeline (`python -m beauty_expansion.pipeline`) and shown in the Streamlit dashboard.
+Data collected 2026-11-11/12._
 
 ---
 
@@ -11,78 +16,222 @@ _Fill each section as the matching module in [LEARNING_PATH.md](LEARNING_PATH.md
 
 | | |
 |---|---|
-| **Name** | Sephora (LVMH group, *Selective Retailing* segment, listed on Euronext Paris via LVMH) |
-| **Business** | Selective beauty retail: fragrance, make-up, skincare, haircare; brands + Sephora Collection private label |
-| **Stores in France (X)** | _TODO_ (source: LVMH annual report / Sephora store locator) |
-| **Catalogue** | _TODO_ number of SKUs, brands, private label share |
-| **Target country** | _Chosen by the scoring model in module 07_ |
-| **Team** | _First name LAST NAME_ (role) × 3–4 |
+| **Company** | **Sephora**, LVMH group, *Selective Retailing* business group (LVMH is listed on Euronext Paris) |
+| **Business in France** | Selective beauty retail: fragrance, make-up, skincare, haircare. Third-party brands, exclusive brands and the *Sephora Collection* private label. All stores are company-operated. |
+| **Stores in France (X)** | **≈ 330 stores** (Ile-de-France > 75), about 5,000 employees |
+| **France revenue** | **€2,511 M** in 2024 (Sephora SAS filed accounts), about **6.9 %** of French household personal-care spending (Eurostat) |
+| **Group context** | LVMH Selective Retailing: €18.3 bn revenue in 2025, 9.7 % operating margin (up from 4.5 % in 2021), 59,416 employees. Growth slowed from +26 % (2022) to +0.5 % (2025), which supports the case for new markets. |
+| **Target country** | **Netherlands** (chosen by the model among 5 candidates, see §4) |
+| **Team** | _First name LAST NAME_ (role), _First name LAST NAME_ (role), _First name LAST NAME_ (role) |
+
+**How the candidates were chosen.** Expansion means a country with **no Sephora store** today. We checked OpenStreetMap
+and the press. Germany (since 2017), Belgium (opened June 2026), Luxembourg, Switzerland, Sweden and Denmark already
+have stores, so they're excluded. **Candidates: Netherlands, Austria, Ireland, Finland, Norway.** Ireland's only
+Sephora is in Belfast (UK, February 2026). See `data/manual/sephora_presence.csv`.
 
 ## 2. Scope & data dictionary
 
 ### Business terms
 | Term | Definition |
-|------|-----------|
-| Catchment area (zone d'achalandage) | _TODO_ |
-| Gross margin after tax | _TODO_ |
-| Relative price index | _TODO_ |
+|---|---|
+| **Personal-care market** | Household final consumption on COICOP 2018 *CP131 Personal care* (Eurostat `nama_10_cp18`): cosmetics, toiletries and personal-care services. It's the widest official proxy for the beauty market. |
+| **Selective beauty store** | Specialist beauty / perfumery chain (Douglas, ICI Paris XL, Marionnaud, KICKS, Rituals, Kiko…), which competes directly with Sephora. Drugstores (dm, Kruidvat, Boots, Normal…) are indirect competitors. |
+| **Catchment area (zone d'achalandage)** | 10 km radius around the centre of each of the 5 largest cities of a country |
+| **Effective price index** | Price Sephora can charge for the same products, France = 100 (see business rules) |
+| **Gross margin after tax** | (shelf price ÷ (1 + VAT) − landed cost) ÷ net price, weighted by French sales mix. Landed cost = purchase cost + logistics (distance-based) + customs |
+| **Trade friction** | Customs duty + customs-clearance cost outside the EU customs union + 1 pt if the currency isn't the euro |
+| **Eligible catalogue** | Share of French sales (revenue-weighted) that can be sold at launch: brands not locked by an exclusive local distributor, labels in an accepted language, no pending alcohol approval (Norway) |
+| **Payback** | Years for one store's cumulative free cash flow to repay fit-out, opening costs and opening inventory |
+| **NPV** | Free cash flow of the 15-store plan 2027–2031 + terminal value (1 % growth), discounted at 8 % |
 
-### Metrics
-| Metric | Formula | Unit | Grain |
-|--------|---------|------|-------|
-| _TODO_ | | | |
+### Metrics (KPIs) and dimensions
+| KPI | Formula | Unit | Grain | Source |
+|---|---|---|---|---|
+| `market_cagr` | (spend_latest / spend_2019)^(1/n) − 1 | %/yr | country | Eurostat nama_10_cp18 |
+| `spend_per_capita_eur` | personal-care spend / inhabitant | €/yr | country × year | Eurostat |
+| `market_size_meur` | personal-care spend | M€ | country × year | Eurostat |
+| `gross_margin_post_tax` | see definition | % | country | catalogue × VAT × price index × logistics |
+| `relative_price_index` *(context)* | PLI country / PLI France × 100 | index | country | Eurostat prc_ppp_ind_1 (A0112) |
+| `scraped_price_index` *(context)* | median(price country / price France) × 100, same products | index | country | LOOKFANTASTIC scraper |
+| `catchment_density_per_100k` | selective stores within 10 km / city population × 100k | stores | country (5 cities) | OpenStreetMap |
+| `leader_store_share` *(context)* | stores of the #1 selective chain / all selective stores | % | country | OpenStreetMap |
+| `prime_rent_eur_m2` | prime high-street rent | €/m²/yr | country | Cushman & Wakefield 2025 |
+| `hub_distance_km` | mean road distance (1.25 × great-circle) from nearest Sephora hub to competitor stores | km | country | OSM + hubs |
+| `trade_friction` | see definition | pts | country | customs / EC / OECD |
+| `catalogue_eligible_pct` | see definition | % | country | simulated catalogue |
+| `personal_care_share_pct` | personal care / total household consumption | % | country | Eurostat |
+| `labour_cost_retail_eur_h` *(business case)* | hourly labour cost, retail trade (NACE G) | €/h | country | Eurostat lc_lci_lev |
 
-### Dimensions
-| Dimension | Attributes |
-|-----------|-----------|
-| `dim_country` | _TODO_ |
-| `dim_category` | |
-| `dim_date` | |
-| `dim_competitor` | |
+**Dimensions:** `dim_country`, `dim_date` (actual / plan 2027–2029 / projection), `dim_indicator`, `dim_brand`, `dim_category`, `dim_store`.
 
 ### Business rules
-- _TODO_ (e.g. "prices are compared VAT-included, converted to EUR")
+1. **Candidates** are European countries with no Sephora store (checked 2026-11). France is the benchmark and is never scored.
+2. **Latest year available** per country is used. Norway's spending series stops in 2023, Dutch labour cost in 2024.
+3. **Scores** are min-max scaled 0–100 across the 5 candidates (100 = best, direction-aware). Differences < 2 % of the mean count as noise (everyone gets 50).
+4. **Price rule:** online, the same products sell at the **same price in every eurozone country** (median scraped index = 100 in NL, AT, IE), even though general price levels differ by up to +35 %. So the margin uses the scraped index, and for FI/NO the Eurostat price gap × the pass-through observed in the scraped countries (0 %).
+5. **Selective Retailing ≠ Sephora:** LVMH only publishes the business group (Sephora + DFS + Le Bon Marché), so we use it as a proxy and say so.
+6. **Source anomaly kept, not fixed:** LVMH's ESG Data Book 2025 business-group headcounts sum to 211,551 vs a published total of 211,552. We use the detailed figures.
+7. **Decision rule** (written before the results, `analysis/decision.py`): shortlist by score. If the top two are within 2 points, the higher base-case NPV wins. Then: **GO** = NPV > 0, payback ≤ 4 years, pessimistic NPV > 0. **CONDITIONAL GO** = NPV > 0 but a condition fails. **NO-GO** = NPV ≤ 0.
 
 ## 3. Architecture & data sources
 
-_Star schema diagram goes here (module 06)._
+```mermaid
+flowchart LR
+  subgraph Sources
+    E[Eurostat API<br/>8 series]
+    O[OpenStreetMap<br/>Overpass API]
+    S[LOOKFANTASTIC<br/>scraper]
+    L[LVMH Excel +<br/>press releases]
+    M[Manual cited CSVs<br/>VAT, tax, rents, hubs]
+    I[Simulated internal DB<br/>330 stores, 2,000 SKUs]
+  end
+  Sources --> X[extract/] --> T[transform/geo] --> W[(DuckDB<br/>star schema)]
+  W --> K[KPIs] --> SC[scoring + sensitivity] --> D[decision rule]
+  K --> BC[business case] --> D
+  D --> AI[Claude summary] --> APP[Streamlit dashboard]
+```
 
-| Source | Type | Data | Why it's relevant | Refresh |
-|--------|------|------|-------------------|---------|
-| Eurostat | Open data API | population, GDP, HICP cosmetics, retail trade | official, comparable across EU | yearly/monthly |
-| OpenStreetMap (Overpass) | API | Sephora + competitor store locations (Douglas, Rossmann, dm, Kiko...) | free, geolocated; also confirms where Sephora is absent | on demand |
-| Retailer websites | Scraper | product prices | real shelf prices FR vs target | on demand |
-| LVMH annual reports | Public financials (Excel/PDF) | Selective Retailing revenue & operating margin | real baseline for Sephora's economics | yearly |
-| Internal store P&L | Simulated internal DB (Excel), calibrated on LVMH figures | revenue, COGS, rent per store | per-store business case | monthly |
+### Star schema (`sql/schema.sql`)
+```mermaid
+erDiagram
+  dim_country ||--o{ fact_macro_indicator : ""
+  dim_indicator ||--o{ fact_macro_indicator : ""
+  dim_date ||--o{ fact_macro_indicator : ""
+  dim_country ||--o{ fact_competitor_store : ""
+  dim_brand ||--o{ fact_competitor_store : ""
+  dim_country ||--o{ fact_price : ""
+  dim_category ||--o{ fact_price : ""
+  dim_country ||--o{ fact_catalogue : ""
+  dim_category ||--o{ fact_catalogue : ""
+  dim_store ||--o{ fact_store_pnl : ""
+  dim_date ||--o{ fact_store_pnl : ""
+  dim_date ||--o{ fact_group_financials : ""
+  dim_country ||--o{ fact_country_kpi : ""
+  dim_country ||--o{ fact_business_case : ""
+  dim_date ||--o{ fact_business_case : ""
+```
+Each fact has a single, documented grain (see the comments in `schema.sql`). KPIs are computed **with SQL on the star schema** (`analysis/kpis.py`).
 
-## 4. Organisation & roadmap
+### Why these sources
+| Source | Type | Data | Why it's relevant | Limits |
+|---|---|---|---|---|
+| **Eurostat API** | Open data API | population, GDP/capita, personal-care spending & share, HICP, price levels, retail labour cost | official, harmonised across all candidates, yearly refresh | CP131 includes personal-care *services* (hairdressers) |
+| **OpenStreetMap (Overpass)** | Open data API | 6,460 beauty stores geolocated (18 chains), city populations | only free geolocated source of competitor stores | crowd-sourced: coverage uneven. Nordic chains often lack `brand` tags, so we added an exact-name lookup. Drugstores in Ireland (Boots) are under-mapped. |
+| **LOOKFANTASTIC scraper** | Web scraping | 17 identical products × 4 countries | real shelf prices, same SKU across countries | online channel only; Sephora, Notino and Douglas block scripts (403), and we respected that |
+| **LVMH ESG Data Book + results** | Public Excel / press releases | Selective Retailing revenue, margin, headcount 2021–2025 | real economics of the business group | not Sephora-only |
+| **Cushman & Wakefield, EC, OECD, national customs** | Manual, cited | prime rents, VAT, corporate tax, duties | authoritative references | prime-street rents; applied with a 45 % factor for normal locations |
+| **Simulated internal databases** | Seeded generator calibrated on public totals | 330 French store P&Ls, 2,000-SKU catalogue with eligibility flags | the brief allows simulated internal data; totals match Sephora France revenue and LVMH margins | individual rows are synthetic |
+
+## 4. Results
+
+### Attractiveness ranking (weights in `config.py`)
+| Country | Score /100 | Market | Price & margin | Network | Operations | Assortment |
+|---|---|---|---|---|---|---|
+| **Netherlands** | **79.7** | 86 | 100 | 32 | 100 | 85 |
+| Austria | 75.2 | 75 | 98 | 34 | 80 | 96 |
+| Ireland | 74.6 | 67 | 74 | 79 | 65 | 95 |
+| Finland | 34.0 | 0 | 15 | 82 | 54 | 44 |
+| Norway | 26.7 | 34 | 0 | 82 | 0 | 0 |
+
+**Weights:** Market & potential 30 % (growth 12, spend/capita 10, size 8) · Price & margin 20 % (gross margin after tax) ·
+Network 20 % (catchment density 10, rent 10) · Operations 15 % (hub distance 8, trade friction 7) · Assortment 15 % (eligible catalogue 8, category share 7).
+Market gets the most weight because it caps achievable revenue. Margin is one KPI, so the price level isn't counted twice.
+
+**Robustness:** the Netherlands stays first under all 5 weightings tested (base, market first, margin first,
+low risk / operations, equal weights), 4.5 to 13.3 points ahead of the runner-up.
+
+### Key insights
+- **The Netherlands has the biggest market** (€12.8 bn of personal-care spending, +5.8 %/yr since 2019, €710 per head vs €530 in France), the **best margin after tax** (45.6 %, the same as France) and the **easiest supply**: 268 km on average from the Düren hub, which already serves Sephora Germany.
+- **Its weak spot is competition:** 4.6 selective beauty stores per 100k inhabitants around the 5 largest cities (France: 7.6), led by **ICI Paris XL (37 % of selective stores)** and Douglas. Sephora has to win on concept and exclusive brands, not on white space.
+- **Ireland has the best store economics** (fastest growth +6.4 %/yr, least crowded at 1.1 stores per 100k, cheapest retail labour at €32/h, 15 % corporate tax), but it's a small market (€3.8 bn) and the nearest EU hub is 1,071 km away. Since Brexit, the UK hub (Coventry) can't supply it without customs.
+- **Austria has rich consumers** (€770 per head) but **Vienna's prime rent (€5,520/m²) cuts the store EBITDA margin to 5 %**.
+- **The Nordics fail on margin:** 25–25.5 % VAT on euro-harmonised prices and about 1,300–1,500 km from the nearest hub. Norway adds customs and the NOK, and only 62 % of the catalogue could be sold at launch.
+- **Price harmonisation is the hidden finding:** general price levels are 12–45 % above France's, yet the same beauty products cost the same online (median scraped index 100 in NL, AT, IE). A margin must not assume local price levels.
+
+### Business case: 15 stores (3 in 2027, +5 in 2028, +7 in 2029), 350 m² each
+| | **Netherlands** | Ireland | Austria | Finland | Norway |
+|---|---|---|---|---|---|
+| Mature store revenue | **€6.3 M** | €6.6 M | €6.9 M | €5.0 M | €4.6 M |
+| Store EBITDA margin (after central costs) | **12 %** | 12 % | 5 % | 9 % | 1 % |
+| Store payback | **5.0 yrs** | 4.5 yrs | > 10 yrs | 6.6 yrs | never |
+| Plan capex + opening inventory | **€34.9 M** | €35.8 M | €36.0 M | €33.4 M | €32.6 M |
+| NPV base / pessimistic (−20 % sales) | **€76 M / €20 M** | €90 M / €28 M | €16 M / −€59 M | €44 M / €5 M | −€26 M / −€68 M |
+
+Netherlands plan: revenue €13 M (2027) → €79 M (2029) → €95 M (2031). Free cash flow is negative during the roll-out
+(≈ −€27 M cumulated 2027–2029) and positive from 2030 (+€8–9 M per year), so **most of the NPV comes from the terminal
+value**: the network has to keep running beyond 2031 to create value.
+
+### Decision: CONDITIONAL GO for the Netherlands
+- **Selection:** highest attractiveness score, 4.5 points ahead of Austria, and first under every weighting.
+- **Checks:** ✅ NPV > 0 (€76 M) · ❌ store payback 5.0 years vs 4-year target · ✅ NPV still positive at −20 % sales (€20 M).
+- **Trade-off for the Comex:** Ireland has better store economics (higher NPV, faster payback) but a smaller market
+  that is harder to supply and to scale beyond 15 stores. **Plan B = Ireland.**
+
+**Conditions for a full GO:** bring payback under 4 years by (a) securing average rents at or below 45 % of
+P.C. Hooftstraat prime (≈ €1,260/m²), (b) a 3-store pilot in 2027 (Amsterdam, Rotterdam, Utrecht) that must reach 70 %
+of the mature sales target in year 1, and (c) exclusive brands and a strong loyalty offer to take share from
+ICI Paris XL and Douglas, plus securing the ~9 % of sales currently held by exclusive local distributors.
+
+### Correction log
+A first run sent Ireland's supply through Sephora UK's Coventry hub, which made Ireland look closer (495 km) and
+ranked it joint first. Since Brexit, UK → Ireland shipments go through customs, so hubs are now restricted to the EU
+customs union (`data/manual/logistics_hubs.csv`). Ireland dropped to third, and the Netherlands became first under every
+weighting. We keep this note because it shows why each source assumption is checked.
+
+## 5. Organisation & roadmap
 
 | Member | Role |
-|--------|------|
-| _TODO_ | Data engineering (collection, pipeline) |
-| _TODO_ | Data modelling & SQL |
-| _TODO_ | Analysis & KPIs |
-| _TODO_ | DataViz, AI & presentation |
+|---|---|
+| _Name_ | Data engineering: extractors, scraper, pipeline |
+| _Name_ | Data modelling: star schema, SQL, data quality |
+| _Name_ | Analysis: KPIs, scoring, business case |
+| _Name_ | DataViz, AI summary, Comex presentation |
 
-**Method:** _TODO_ (e.g. weekly sprints, Git branches + pull requests)
+**Method:** short weekly sprints, one Git branch per module with pull-request review, assumptions centralised in `config.py`, every manual figure stored with its source URL.
 
-**Next steps (post-study recommendations):** _TODO_
+**Next steps (post-study recommendations):**
+1. Replace the simulated store P&L with Sephora's real store data, then re-run the pipeline (it's built for that).
+2. Ask local brokers for real rent quotes in Amsterdam (Kalverstraat, P.C. Hooftstraat), Rotterdam (Lijnbaan) and the large malls (Westfield Mall of the Netherlands, Hoog Catharijne).
+3. Check the exclusive-distribution contracts of the top 50 brands in the Netherlands (and Ireland as Plan B).
+4. Scrape physical-store prices (ICI Paris XL, Douglas NL) to confirm price harmonisation offline.
+5. Run a 3-store pilot in 2027, with a go/no-go gate in the first quarter of 2028 before opening the next 12 stores. Keep Ireland as option 2.
 
-## 5. Technical stack
+## 6. Technical stack
 
-```
-Eurostat API ─┐
-OSM Overpass ─┼─► Python (requests, BeautifulSoup, pandas) ─► DuckDB star schema ─► KPIs ─► Plotly + Streamlit
-Scraper ──────┤                                                                          └─► Claude API (AI summary)
-Excel (P&L) ──┘
-```
+| Layer | Tools |
+|---|---|
+| Language | Python 3.12 |
+| Collection | `requests` (Eurostat & Overpass APIs), `BeautifulSoup` (scraper), `openpyxl`/`pandas` (Excel) |
+| Wrangling | `pandas`, `numpy` |
+| Storage / modelling | **DuckDB** star schema (`sql/schema.sql`), file `data/processed/warehouse.duckdb` |
+| Analysis | Python modules in `src/beauty_expansion/analysis/` |
+| AI | Claude Opus 5.5 via the `anthropic` SDK, with structured JSON output and refusal fallback. A rule-based fallback runs without a key. |
+| DataViz | Plotly + **Streamlit** dashboard (`app/streamlit_app.py`). CSV exports in `data/processed/` for Power BI/Tableau users. |
+| Versioning | Git |
 
 ## How to run
 
 ```bash
 python3.12 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env            # add your ANTHROPIC_API_KEY
-python -m beauty_expansion.pipeline   # (module 12) collects, models, and scores
-streamlit run app/streamlit_app.py    # opens the dashboard
+pip install -r requirements.txt && pip install -e .
+cp .env.example .env                       # optional: add ANTHROPIC_API_KEY for the AI summary
+python -m beauty_expansion.pipeline        # ~2 min with cache, ~15 min first run (--refresh to re-download)
+streamlit run app/streamlit_app.py         # opens the dashboard
+```
+
+Change an assumption in `src/beauty_expansion/config.py` (weights, rents, ramp-up, WACC…), re-run, and the dashboard updates.
+
+## Repository map
+```
+src/beauty_expansion/
+  config.py             every assumption, with its source or "ASSUMPTION"
+  extract/              eurostat.py · osm.py · prices.py (scraper) · lvmh.py · internal.py (simulated)
+  transform/geo.py      distances, catchment areas
+  load/warehouse.py     DuckDB star schema loader
+  analysis/             kpis.py · scoring.py · business_case.py · decision.py · ai_summary.py
+  pipeline.py           one command, end to end
+sql/schema.sql          star schema
+app/streamlit_app.py    dashboard
+data/manual/            hand-collected figures with sources (committed)
+lessons/                Python learning path (see LEARNING_PATH.md)
 ```

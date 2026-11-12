@@ -1,0 +1,12 @@
+country_code,country,sephora_physical_stores,status,evidence
+DE,Germany,yes,excluded - present since 2017 (own stores + Galeria corners),https://wwd.com/business-news/retail/feature/sephora-enter-germany-galeria-kaufhof-munich10932517-10932517/
+BE,Belgium,yes,excluded - entered June 2026 (Docks Bruxsel; City2; Liège),https://www.retaildetail.eu/news/beauty-care/sephora-makes-its-belgian-debut-at-docks-bruxsel-and-city2/
+LU,Luxembourg,yes,excluded - stores found in OpenStreetMap,https://www.openstreetmap.org
+CH,Switzerland,yes,excluded - stores found in OpenStreetMap (Zürich; Geneva),https://www.openstreetmap.org
+SE,Sweden,yes,excluded - stores found in OpenStreetMap (Stockholm),https://www.openstreetmap.org
+DK,Denmark,yes,excluded - store found in OpenStreetMap (Copenhagen),https://www.openstreetmap.org
+IE,Ireland,no,candidate - first store on the island is in Belfast (UK) Feb 2026; none in the Republic,https://www.irishtimes.com/life-style/fashion/2026/01/13/sephora-to-open-first-store-on-island-of-ireland/
+NL,Netherlands,no,candidate - no store in OpenStreetMap or press,https://beautymatter.com/articles/sephoras-on-the-way-is-douglas-set-for-benelux-competition
+AT,Austria,no,candidate - no store in OpenStreetMap or press (served online from Düren),https://www.openstreetmap.org
+FI,Finland,no,candidate - no store in OpenStreetMap or press,https://www.openstreetmap.org
+NO,Norway,no,candidate - no store in OpenStreetMap or press,https://www.openstreetmap.org
