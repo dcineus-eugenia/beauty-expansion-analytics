@@ -45,7 +45,9 @@ print(excel.sheet_names)
 # English sheets: the ones whose name starts with "EN". Use a loop, or a "list comprehension":
 #   [name for name in excel.sheet_names if ...]
 # Tip: strings have a .startswith("...") method.
-
+for name in excel.sheet_names:
+    if name.startswith("EN"):
+        print(name)
 # ---------------------------------------------------------------------------
 # 2. Read a sheet "raw" and see the mess
 # ---------------------------------------------------------------------------
@@ -104,7 +106,16 @@ print(headcount)
 # EXERCISE 3.1: use extract_block to get "Headcount by occupational category (number)" and print it.
 # Look at the 2023 Total. Does it equal the 2023 total headcount (213268, row 11 of the sheet)?
 # Write one sentence in a comment: what could explain the difference? (Hint: scope/definitions.)
+def extract_headcount_by_occupational_category(sheet: pd.DataFrame) -> pd.DataFrame:
+    return extract_block(sheet, "Headcount by occupational category (number)")
 
+
+occupations = extract_headcount_by_occupational_category(raw)
+print("\n=== 3.1 Headcount by occupational category ===")
+print(occupations)
+# ANSWER: the 2023 Total is 192,287, not 213,268 (about 21,000 fewer). The two tables don't use the same
+# scope: the occupational breakdown likely covers a narrower perimeter or another counting basis (e.g.
+# average vs 31-December headcount). Lesson: always check the definition before comparing two totals.
 # ---------------------------------------------------------------------------
 # 4. Validate, then reshape from "wide" to "long"
 # ---------------------------------------------------------------------------
@@ -164,8 +175,16 @@ print(geo)
 print("Each year should sum to ~1.0:", geo[[2023, 2024, 2025]].sum().round(2).to_dict())
 
 # EXERCISE 5.1: extract "Headcount by age", clean the year columns with to_number, and print it.
-# One year has no data at all. Which one? What does to_number return for it?
-
+# One year has no data at all, so extract_block DROPPED that column (dropna, axis="columns").
+# Don't hard-code [2023, 2024, 2025]: loop over the columns that actually exist, except "label".
+# Which year is missing?
+age = extract_block(raw, "Headcount by age")
+year_columns = [col for col in age.columns if col != "label"]
+for year in year_columns:
+    age[year] = age[year].map(to_number)
+print("\nCleaned headcount by age:")
+print(age)
+# ANSWER: 2023 is missing. The column was entirely empty, so extract_block dropped it.
 # ---------------------------------------------------------------------------
 # 6. Financials from a press release (French number format)
 # ---------------------------------------------------------------------------
@@ -192,7 +211,10 @@ print(fin.drop(columns="Source").to_string(formatters={
 #   CAGR = (revenue_2025 / revenue_2021) ** (1 / 4) - 1
 # Tip: fin.loc[fin["year"] == 2025, "revenue_m_eur"].iloc[0] gets one value.
 # This is a real KPI from the brief ("annual growth rate").
-
+revenue_2021 = fin.loc[fin["year"] == 2021, "revenue_m_eur"].iloc[0]
+revenue_2025 = fin.loc[fin["year"] == 2025, "revenue_m_eur"].iloc[0]
+cagr_2021_2025 = (revenue_2025 / revenue_2021) ** (1 / 4) - 1   # parentheses: ** runs before /
+print(f"\nRevenue CAGR 2021-2025: {cagr_2021_2025:.1%}")
 # ---------------------------------------------------------------------------
 # 7. Combine both sources: revenue per employee
 # ---------------------------------------------------------------------------
@@ -209,7 +231,10 @@ print(combined[["year", "revenue_m_eur", "headcount", "revenue_per_employee_k_eu
 
 # EXERCISE 7.1: add `profit_per_employee_k_eur` (recurring profit per employee, in k€).
 # Which year was the most productive per employee?
-
+combined = combined.assign(profit_per_employee_k_eur=combined["recurring_profit_m_eur"] * 1000 / combined["headcount"])
+print(combined[["year", "revenue_per_employee_k_eur", "profit_per_employee_k_eur"]].round(1))
+best = combined.loc[combined["profit_per_employee_k_eur"].idxmax(), "year"]
+print(f"Most productive year per employee: {best}")
 out = Path("data/processed/lvmh_selective_retailing.csv")
 combined.drop(columns="Source").to_csv(out, index=False)
 print(f"\nSaved {out}")
