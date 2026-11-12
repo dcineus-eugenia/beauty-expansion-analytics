@@ -4,7 +4,7 @@
 >
 > **Answer:** **CONDITIONAL GO for the Netherlands**, with a 15-store plan (3 → 8 → 15 stores, 2027–2029).
 > It ranks first under all 5 weightings tested. Base-case NPV **€76 M**, still positive if sales come in 20 % below
-> plan (€20 M), but store payback is **5.0 years**, above the 4-year target. **Ireland is the Plan B**: better
+> plan (€20 M), but store payback is **4.9 years**, above the 4-year target. **Ireland is the Plan B**: better
 > store economics (NPV €90 M, payback 4.5 years) but a smaller, harder-to-supply market.
 
 _All figures are produced by the pipeline (`python -m beauty_expansion.pipeline`) and shown in the Streamlit dashboard.
@@ -116,7 +116,7 @@ Each fact has a single, documented grain (see the comments in `schema.sql`). KPI
 | Source | Type | Data | Why it's relevant | Limits |
 |---|---|---|---|---|
 | **Eurostat API** | Open data API | population, GDP/capita, personal-care spending & share, HICP, price levels, retail labour cost | official, harmonised across all candidates, yearly refresh | CP131 includes personal-care *services* (hairdressers) |
-| **OpenStreetMap (Overpass)** | Open data API | 6,460 beauty stores geolocated (18 chains), city populations | only free geolocated source of competitor stores | crowd-sourced: coverage uneven. Nordic chains often lack `brand` tags, so we added an exact-name lookup. Drugstores in Ireland (Boots) are under-mapped. |
+| **OpenStreetMap (Overpass)** | Open data API | 6,420 beauty stores geolocated in continental Europe (18 chains), city populations | only free geolocated source of competitor stores | crowd-sourced: coverage uneven. Nordic chains often lack `brand` tags, so we added an exact-name lookup. Drugstores in Ireland (Boots) are under-mapped. |
 | **LOOKFANTASTIC scraper** | Web scraping | 17 identical products × 4 countries | real shelf prices, same SKU across countries | online channel only; Sephora, Notino and Douglas block scripts (403), and we respected that |
 | **LVMH ESG Data Book + results** | Public Excel / press releases | Selective Retailing revenue, margin, headcount 2021–2025 | real economics of the business group | not Sephora-only |
 | **Cushman & Wakefield, EC, OECD, national customs** | Manual, cited | prime rents, VAT, corporate tax, duties | authoritative references | prime-street rents; applied with a 45 % factor for normal locations |
@@ -128,9 +128,9 @@ Each fact has a single, documented grain (see the comments in `schema.sql`). KPI
 | Country | Score /100 | Market | Price & margin | Network | Operations | Assortment |
 |---|---|---|---|---|---|---|
 | **Netherlands** | **79.7** | 86 | 100 | 32 | 100 | 85 |
-| Austria | 75.2 | 75 | 98 | 34 | 80 | 96 |
-| Ireland | 74.6 | 67 | 74 | 79 | 65 | 95 |
-| Finland | 34.0 | 0 | 15 | 82 | 54 | 44 |
+| Austria | 74.9 | 75 | 98 | 34 | 78 | 96 |
+| Ireland | 74.4 | 67 | 73 | 79 | 64 | 95 |
+| Finland | 34.0 | 0 | 15 | 82 | 53 | 44 |
 | Norway | 26.7 | 34 | 0 | 82 | 0 | 0 |
 
 **Weights:** Market & potential 30 % (growth 12, spend/capita 10, size 8) · Price & margin 20 % (gross margin after tax) ·
@@ -138,10 +138,10 @@ Network 20 % (catchment density 10, rent 10) · Operations 15 % (hub distance 8,
 Market gets the most weight because it caps achievable revenue. Margin is one KPI, so the price level isn't counted twice.
 
 **Robustness:** the Netherlands stays first under all 5 weightings tested (base, market first, margin first,
-low risk / operations, equal weights), 4.5 to 13.3 points ahead of the runner-up.
+low risk / operations, equal weights), 4.8 to 13.5 points ahead of the runner-up.
 
 ### Key insights
-- **The Netherlands has the biggest market** (€12.8 bn of personal-care spending, +5.8 %/yr since 2019, €710 per head vs €530 in France), the **best margin after tax** (45.6 %, the same as France) and the **easiest supply**: 268 km on average from the Düren hub, which already serves Sephora Germany.
+- **The Netherlands has the biggest market** (€12.8 bn of personal-care spending, +5.8 %/yr since 2019, €710 per head vs €530 in France), the **best margin after tax** (45.6 %, the same as France) and the **easiest supply**: 219 km on average from the Düren hub, which already serves Sephora Germany.
 - **Its weak spot is competition:** 4.6 selective beauty stores per 100k inhabitants around the 5 largest cities (France: 7.6), led by **ICI Paris XL (37 % of selective stores)** and Douglas. Sephora has to win on concept and exclusive brands, not on white space.
 - **Ireland has the best store economics** (fastest growth +6.4 %/yr, least crowded at 1.1 stores per 100k, cheapest retail labour at €32/h, 15 % corporate tax), but it's a small market (€3.8 bn) and the nearest EU hub is 1,071 km away. Since Brexit, the UK hub (Coventry) can't supply it without customs.
 - **Austria has rich consumers** (€770 per head) but **Vienna's prime rent (€5,520/m²) cuts the store EBITDA margin to 5 %**.
@@ -153,7 +153,7 @@ low risk / operations, equal weights), 4.5 to 13.3 points ahead of the runner-up
 |---|---|---|---|---|---|
 | Mature store revenue | **€6.3 M** | €6.6 M | €6.9 M | €5.0 M | €4.6 M |
 | Store EBITDA margin (after central costs) | **12 %** | 12 % | 5 % | 9 % | 1 % |
-| Store payback | **5.0 yrs** | 4.5 yrs | > 10 yrs | 6.6 yrs | never |
+| Store payback | **4.9 yrs** | 4.5 yrs | > 10 yrs | 6.6 yrs | never |
 | Plan capex + opening inventory | **€34.9 M** | €35.8 M | €36.0 M | €33.4 M | €32.6 M |
 | NPV base / pessimistic (−20 % sales) | **€76 M / €20 M** | €90 M / €28 M | €16 M / −€59 M | €44 M / €5 M | −€26 M / −€68 M |
 
@@ -162,8 +162,8 @@ Netherlands plan: revenue €13 M (2027) → €79 M (2029) → €95 M (2031). 
 value**: the network has to keep running beyond 2031 to create value.
 
 ### Decision: CONDITIONAL GO for the Netherlands
-- **Selection:** highest attractiveness score, 4.5 points ahead of Austria, and first under every weighting.
-- **Checks:** ✅ NPV > 0 (€76 M) · ❌ store payback 5.0 years vs 4-year target · ✅ NPV still positive at −20 % sales (€20 M).
+- **Selection:** highest attractiveness score, 4.8 points ahead of Austria, and first under every weighting.
+- **Checks:** ✅ NPV > 0 (€76 M) · ❌ store payback 4.9 years vs 4-year target · ✅ NPV still positive at −20 % sales (€20 M).
 - **Trade-off for the Comex:** Ireland has better store economics (higher NPV, faster payback) but a smaller market
   that is harder to supply and to scale beyond 15 stores. **Plan B = Ireland.**
 
@@ -177,6 +177,19 @@ A first run sent Ireland's supply through Sephora UK's Coventry hub, which made 
 ranked it joint first. Since Brexit, UK → Ireland shipments go through customs, so hubs are now restricted to the EU
 customs union (`data/manual/logistics_hubs.csv`). Ireland dropped to third, and the Netherlands became first under every
 weighting. We keep this note because it shows why each source assumption is checked.
+
+The data contracts (below) then caught a second issue: OpenStreetMap's country areas include **overseas territories**
+(French Guiana, Réunion, Caribbean Netherlands), so 40 stores up to 19,000 km away were counted. They are now removed
+(`config.EUROPE_BBOX`). The Netherlands' average hub distance fell from 268 to 219 km and its payback from 5.0 to 4.9
+years; the ranking and the decision didn't change. The same check fixed a text-encoding bug in scraped product names.
+
+### Data quality and team coherence
+- **Data contracts** (`src/beauty_expansion/contracts.py`, documented in [`docs/DATA_CONTRACTS.md`](docs/DATA_CONTRACTS.md)):
+  every output file has a declared grain, key, column types, units and allowed ranges. The pipeline refuses to write
+  a file that breaks its contract, and cross-file checks keep the same countries, years and winner everywhere.
+- **Tests** (`tests/`, `python -m pytest`): config consistency, sourced manual data, contract enforcement, known-answer
+  calculations. They run on every pull request (GitHub Actions, `.github/workflows/ci.yml`).
+- **Review rules:** `CONTRIBUTING.md`, the pull request checklist, and `CODEOWNERS` for shared definitions.
 
 ## 5. Organisation & roadmap
 
@@ -229,9 +242,12 @@ src/beauty_expansion/
   transform/geo.py      distances, catchment areas
   load/warehouse.py     DuckDB star schema loader
   analysis/             kpis.py · scoring.py · business_case.py · decision.py · ai_summary.py
+  contracts.py          data contracts: grain, columns, units, ranges of every output file
   pipeline.py           one command, end to end
 sql/schema.sql          star schema
 app/streamlit_app.py    dashboard
+tests/                  pytest suite (run on every pull request)
+docs/DATA_CONTRACTS.md  generated data dictionary of the output files
 data/manual/            hand-collected figures with sources (committed)
 lessons/                Python learning path (see LEARNING_PATH.md)
 ```

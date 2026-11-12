@@ -33,6 +33,11 @@ CANDIDATES = {
 }
 COUNTRIES = {BASELINE: "France", **CANDIDATES}
 
+# Study area = continental Europe. OpenStreetMap's country areas include overseas territories
+# (French Guiana, Réunion, Caribbean Netherlands...), whose stores would distort densities and
+# hub distances. (lat_min, lat_max, lon_min, lon_max)
+EUROPE_BBOX = (34.0, 72.0, -25.0, 45.0)
+
 # ---------------------------------------------------------------------------
 # Competitor brands (OpenStreetMap "brand" tag)
 # ---------------------------------------------------------------------------

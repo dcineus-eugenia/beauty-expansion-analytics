@@ -47,11 +47,21 @@ PAUSE_S = 1.5
 MAX_PRODUCTS_PER_BRAND = 6
 
 
+def _fix_mojibake(text: str) -> str:
+    """Repair pages cached before the UTF-8 fix ("CafÃ©ine" -> "Caféine")."""
+    if "Ã" not in text and "Â" not in text:
+        return text
+    try:
+        return text.encode("latin-1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return text
+
+
 def _get(url: str, cache_name: str) -> str | None:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cache = CACHE_DIR / cache_name
     if cache.exists():
-        return cache.read_text()
+        return _fix_mojibake(cache.read_text())
     time.sleep(PAUSE_S)
     try:
         response = requests.get(url, headers=HEADERS, timeout=30)
@@ -60,6 +70,7 @@ def _get(url: str, cache_name: str) -> str | None:
     if response.status_code != 200:
         cache.write_text("")              # remember the miss, don't retry every run
         return None
+    response.encoding = "utf-8"           # the site is UTF-8 but does not always say so
     cache.write_text(response.text)
     return response.text
 

@@ -16,3 +16,6 @@ streamlit>=1.40
 # AI summary
 anthropic>=0.40
 python-dotenv>=1.0     # load API keys from a .env file
+
+# Tests
+pytest>=8.0

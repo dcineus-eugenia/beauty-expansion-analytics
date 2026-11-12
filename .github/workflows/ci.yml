@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Code compiles
+        run: python -m compileall -q src app lessons
+      - name: Tests (config, manual data, data contracts, calculations)
+        run: python -m pytest -q
+      - name: Contract docs are up to date
+        run: |
+          python -m beauty_expansion.contracts --markdown > /tmp/contracts.md
+          diff -u docs/DATA_CONTRACTS.md /tmp/contracts.md
