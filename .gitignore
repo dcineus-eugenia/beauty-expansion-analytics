@@ -10,3 +10,4 @@ data/interim/*
 data/processed/*
 !data/**/.gitkeep
 *.duckdb
+*.egg-info/
