@@ -127,6 +127,15 @@ def write_kpis(con, kpis: pd.DataFrame, country_key: dict) -> None:
     con.execute("DELETE FROM fact_country_kpi; INSERT INTO fact_country_kpi SELECT * FROM kpi_df")
 
 
+def write_trade(con, market: pd.DataFrame, country_key: dict, hs_code: str) -> None:
+    """Customs-based market (extract/comext.py) -> fact_trade."""
+    t = market.assign(country_key=market["country_code"].map(country_key), year_key=market["year"], hs_code=hs_code)
+    cols = ["country_key", "year_key", "hs_code", "imports_eur", "exports_eur", "apparent_consumption_eur",
+            "per_capita_eur", "source"]
+    con.register("trade_df", t[cols])
+    con.execute("DELETE FROM fact_trade; INSERT INTO fact_trade SELECT * FROM trade_df")
+
+
 def write_business_case(con, plan: pd.DataFrame, country_key: dict) -> None:
     b = plan.assign(country_key=plan["country_code"].map(country_key), year_key=plan["year"])
     cols = ["country_key", "year_key", "stores_open", "revenue_eur", "gross_margin_eur", "rent_eur",

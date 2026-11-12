@@ -12,6 +12,8 @@
 --        dim_category -- fact_price          fact_catalogue -- dim_category
 --                            |                    |
 --        dim_store -- fact_store_pnl         fact_country_kpi / fact_business_case
+--
+--   fact_trade (customs, fragrance HS 3303) -- dim_country, dim_date
 -- =============================================================================
 
 -- ---------------------------------------------------------------- dimensions
@@ -126,6 +128,19 @@ CREATE OR REPLACE TABLE fact_group_financials (
     recurring_profit_meur DOUBLE,
     headcount             INTEGER,
     operating_margin      DOUBLE
+);
+
+-- Grain: one country, one year, one HS product (customs: Eurostat Comext, Statistics Norway for NO)
+-- apparent_consumption = imports - exports; NULL for net exporters such as France (see extract/comext.py)
+CREATE OR REPLACE TABLE fact_trade (
+    country_key              INTEGER REFERENCES dim_country(country_key),
+    year_key                 INTEGER REFERENCES dim_date(year_key),
+    hs_code                  VARCHAR NOT NULL,   -- 3303 = perfumes and toilet waters
+    imports_eur              DOUBLE,
+    exports_eur              DOUBLE,
+    apparent_consumption_eur DOUBLE,
+    per_capita_eur           DOUBLE,
+    source                   VARCHAR
 );
 
 -- Grain: one country, one KPI (analysis output)
