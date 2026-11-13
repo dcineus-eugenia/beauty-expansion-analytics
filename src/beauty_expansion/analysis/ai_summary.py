@@ -37,9 +37,9 @@ SCHEMA = {
         "next_steps": {"type": "array", "items": {"type": "string"}},
         "chart_comments": {
             "type": "object", "additionalProperties": False,
-            "required": ["ranking", "market", "price_margin", "network", "business_case", "sensitivity"],
+            "required": ["ranking", "market", "price_margin", "network", "business_case", "sensitivity", "fragrance"],
             "properties": {k: {"type": "string"} for k in
-                           ["ranking", "market", "price_margin", "network", "business_case", "sensitivity"]},
+                           ["ranking", "market", "price_margin", "network", "business_case", "sensitivity", "fragrance"]},
         },
     },
 }
@@ -54,19 +54,56 @@ Rules:
 - The recommendation and target country are decided by the written decision rule given in the data:
   restate them exactly, explain why, and state the conditions that would change them.
 - Name the main limitations of the data (simulated internal data, OpenStreetMap coverage, proxies).
+- Fragrance block: customs values (imports - exports) are not retail prices. The Dutch level and growth are an
+  UPPER BOUND (Rotterdam transit remains). France is a net exporter: its fragrance market is not measurable, never
+  quote one. Perfumery shares count shops, not sales; countries flagged small_sample are fragile.
 - Plain business English, short sentences, no jargon, no markdown."""
 
 
-def _payload(kpis, ranking, sensitivity, case, verdict: dict) -> str:
+def _fragrance_block(fragrance: pd.DataFrame | None) -> str:
+    """Fragrance figures (HS 3303) for the prompt; a missing source is stated as missing, never filled in."""
+    parts = []
+    if fragrance is not None:
+        latest = fragrance.sort_values("year").groupby("country_code").tail(1).set_index("country_code")
+        t = pd.DataFrame({"year": latest["year"], "imports_meur": latest["imports_eur"] / 1e6,
+                          "exports_meur": latest["exports_eur"] / 1e6,
+                          "apparent_consumption_meur": latest["apparent_consumption_eur"] / 1e6,
+                          "per_capita_eur": latest["per_capita_eur"]})
+        parts.append("Latest year per country (empty = net exporter, not measurable):\n" + t.round(1).to_csv())
+        nl = fragrance[fragrance["country_code"] == "NL"].sort_values("year")
+        parts.append("Netherlands by year, raw imports vs apparent consumption (Rotterdam effect):\n" + pd.DataFrame({
+            "year": nl["year"], "imports_meur": nl["imports_eur"] / 1e6,
+            "apparent_consumption_meur": nl["apparent_consumption_eur"] / 1e6}).round(1).to_csv(index=False))
+    else:
+        parts.append("Fragrance market (customs): not available in this run.")
+    for title, name, cols in [
+        ("Perfume prices (LOOKFANTASTIC online, FR NL AT IE only, France = 100)", "fragrance_price_summary.csv",
+         ["country_code", "median_price_per_ml", "price_ex_vat_index_vs_fr", "n_products_matched_fr"]),
+        ("Perfumery competition (OpenStreetMap, shares are of shop count)", "fragrance_competition.csv",
+         ["country_code", "perfumeries_per_100k", "top3_share", "leader", "small_sample"]),
+    ]:
+        f = config.PROCESSED / name
+        if f.exists():
+            df = pd.read_csv(f)
+            parts.append(f"{title}:\n" + df[[c for c in cols if c in df]].round(3).to_csv(index=False))
+        else:
+            parts.append(f"{title}: not available in this run.")
+    return "\n".join(parts)
+
+
+def _payload(kpis, ranking, sensitivity, case, verdict: dict, fragrance: pd.DataFrame | None = None) -> str:
     cols = ["market_size_meur", "spend_per_capita_eur", "market_cagr", "relative_price_index",
             "scraped_price_index", "effective_price_index", "gross_margin_post_tax", "catchment_density_per_100k", "leader_brand",
             "leader_store_share", "prime_rent_eur_m2", "labour_cost_retail_eur_h", "hub_distance_km",
-            "trade_friction", "catalogue_eligible_pct", "vat_standard_rate", "corporate_tax_rate"]
+            "trade_friction", "catalogue_eligible_pct", "vat_standard_rate", "corporate_tax_rate",
+            "fragrance_market_meur", "fragrance_per_capita_eur", "fragrance_cagr"]
     return "\n\n".join([
         "KPI TABLE (FR = baseline, others = candidates):\n" + kpis[[c for c in cols if c in kpis]].round(3).to_csv(),
         "WEIGHTED RANKING (0-100):\n" + ranking.round(1).to_csv(),
         "SENSITIVITY OF THE WINNER TO THE WEIGHTS:\n" + sensitivity.to_csv(index=False),
         "BUSINESS CASE (15 stores 2027-2029, NPV at 8% WACC, payback of one store):\n" + case.round(2).to_csv(index=False),
+        "FRAGRANCE DEEP-DIVE (perfumes and toilet waters, HS 3303; scenario 'Fragrance focus' is in the sensitivity table):\n"
+        + _fragrance_block(fragrance),
         "DECISION (computed by the written rule, restate it):\n" + json.dumps(verdict, indent=2),
         f"RULE: GO = NPV > 0 AND store payback <= {config.DECISION_MAX_PAYBACK_YEARS} years AND pessimistic NPV > 0; "
         "CONDITIONAL GO = NPV > 0 but another condition fails; NO-GO = NPV <= 0.",
@@ -99,13 +136,13 @@ def _rule_based(ranking: pd.DataFrame, case: pd.DataFrame, verdict: dict) -> dic
     }
 
 
-def generate(kpis, ranking, sensitivity, case, verdict: dict) -> dict:
+def generate(kpis, ranking, sensitivity, case, verdict: dict, fragrance: pd.DataFrame | None = None) -> dict:
     load_dotenv(config.ROOT / ".env")
     fallback = _rule_based(ranking, case, verdict)
     if not (os.getenv("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_AUTH_TOKEN")):
         summary = fallback
     else:
-        summary = _call_claude(_payload(kpis, ranking, sensitivity, case, verdict)) or fallback
+        summary = _call_claude(_payload(kpis, ranking, sensitivity, case, verdict, fragrance)) or fallback
     # The decision belongs to the rule, not to the model: enforce it
     summary["recommendation"], summary["target_country"] = verdict["recommendation"], verdict["target_name"]
     OUTPUT.write_text(json.dumps(summary, indent=2, ensure_ascii=False))

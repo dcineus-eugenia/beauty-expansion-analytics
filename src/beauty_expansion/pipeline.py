@@ -86,7 +86,7 @@ def run(refresh: bool = False) -> None:
 
     print("6/6 Decision and AI summary")
     verdict = decision.decide(ranking, case)
-    ai_summary.generate(k, ranking, sens, case, verdict)
+    ai_summary.generate(k, ranking, sens, case, verdict, fragrance)
 
     # Flat exports for the dashboard / Power BI users
     k.to_csv(config.PROCESSED / "kpis_by_country.csv")
