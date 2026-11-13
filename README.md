@@ -276,10 +276,11 @@ years; the ranking and the decision didn't change. The same check fixed a text-e
 
 | Member | Role |
 |---|---|
-| _Name_ | Data engineering: extractors, scraper, pipeline |
-| _Name_ | Data modelling: star schema, SQL, data quality |
-| _Name_ | Analysis: KPIs, scoring, business case |
-| _Name_ | DataViz, AI summary, Comex presentation |
+| Damien | Project lead: pipeline, star schema, scoring, business case, data contracts, Comex deck |
+| Kevin | Fragrance market size from customs data (issue #2) |
+| Stephen | Fragrance prices and price per ml (issue #3) |
+| Jude | Fragrance competition, assortment and shipping rules (issue #4) |
+| Natalia | Fragrance dashboard tab, scenario and README section (issue #5) |
 
 **Method:** short weekly sprints, one Git branch per module with pull-request review, assumptions centralised in `config.py`, every manual figure stored with its source URL.
 
