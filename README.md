@@ -64,6 +64,10 @@ Sephora is in Belfast (UK, February 2026). See `data/manual/sephora_presence.csv
 | `labour_cost_retail_eur_h` *(business case)* | hourly labour cost, retail trade (NACE G) | €/h | country | Eurostat lc_lci_lev |
 | `apparent_consumption_eur` *(fragrance, not scored yet)* | HS 3303 imports − exports, missing when ≤ 0 (net exporter) | € | country × year | Eurostat Comext DS-045409, Statistics Norway 08801 |
 | `per_capita_eur` *(fragrance, not scored yet)* | apparent consumption / population | €/inhabitant | country × year | Comext / SSB + Eurostat demo_pjan |
+| `perfumeries_per_100k` *(fragrance, not scored yet)* | (OSM `shop=perfumery` + stores of `config.PERFUMERY_CHAINS`, deduplicated) / population × 100k | shops | country | OpenStreetMap + Eurostat demo_pjan |
+| `top3_share` *(fragrance, not scored yet)* | shops of the 3 biggest perfumery chains / all perfumeries (independents included); a share of **shop count**, not of sales | share 0–1 (like `leader_store_share`) | country | OpenStreetMap |
+| `small_sample` *(fragrance)* | True when a country has fewer than `config.FRAGRANCE_MIN_SHOPS` (100) perfumeries in OSM: its `top3_share` and `leader` are fragile (IE, FI, NO on the 2026-11-13 extract) | flag | country | OpenStreetMap |
+| `fragrance_skus_eligible_pct` *(fragrance, not scored yet)* | eligible fragrance SKUs / all fragrance SKUs, **unweighted** (unlike `catalogue_eligible_pct`, which is revenue-weighted and covers all categories) | % (0–100) | country | simulated catalogue |
 
 **Dimensions:** `dim_country`, `dim_date` (actual / plan 2027–2029 / projection), `dim_indicator`, `dim_brand`, `dim_category`, `dim_store`.
 
