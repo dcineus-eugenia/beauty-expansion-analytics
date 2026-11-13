@@ -36,6 +36,10 @@ def _valid_competition() -> pd.DataFrame:
         "top3_share": [0.5] * 6,
         "leader": ["Douglas"] * 6,
         "fragrance_skus_eligible_pct": [100, 90, 95, 98, 80, 60],
+        "perfumeries_per_100k_top5_cities": [2.0] * 6,
+        "independent_share": [0.3] * 6,
+        "small_sample": [False] * 6,
+        "fragrance_skus_source": ["simulated internal catalogue"] * 6,
     })
 
 
@@ -50,7 +54,7 @@ def test_valid_frame_passes():
     (lambda df: df.assign(country_code=["FR", "NL", "AT", "IE", "FI", "Norway"]), "unexpected values"),
     (lambda df: df.assign(perfumeries=df["perfumeries"].astype(str)), "expected int"),
     (lambda df: pd.concat([df, df.head(1)]), "duplicate keys"),
-    (lambda df: df.assign(leader=[None] + ["Douglas"] * 5), "empty values"),
+    (lambda df: df.assign(fragrance_skus_source=[None] + ["simulated internal catalogue"] * 5), "empty values"),
 ])
 def test_broken_frames_are_rejected(breakage, message):
     with pytest.raises(contracts.ContractError, match=message):

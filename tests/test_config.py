@@ -22,7 +22,8 @@ def test_every_weighted_kpi_has_a_direction_an_axis_and_a_contract():
 @pytest.mark.parametrize("name", scoring.SCENARIOS)
 def test_scenarios_use_known_kpis(name):
     weights = scoring.SCENARIOS[name]
-    assert set(weights) == set(config.KPI_WEIGHTS)
+    # every scenario weights the base KPIs (some at 0) and may add the fragrance KPIs
+    assert set(config.KPI_WEIGHTS) <= set(weights) <= set(config.KPI_WEIGHTS) | set(config.FRAGRANCE_KPI_DIRECTION)
     assert all(w >= 0 for w in weights.values())
 
 

@@ -40,6 +40,9 @@ to write a file that breaks it, and CI checks that this page matches the code.
 | `labour_cost_retail_eur_h` | float | EUR/hour | 0 –  |  | hourly labour cost, retail (Eurostat) |
 | `corporate_tax_rate` | float | fraction | 0 – 0.5 |  | headline corporate income tax |
 | `population` | float | people | 0 –  |  | population on 1 January (Eurostat) |
+| `fragrance_cagr` | float | fraction | -0.5 – 1 | yes | growth of the fragrance market, 2019 to latest year |
+| `fragrance_per_capita_eur` | float | EUR | 0 –  | yes | fragrance apparent consumption per inhabitant |
+| `fragrance_market_meur` | float | M EUR | 0 –  | yes | fragrance apparent consumption (imports - exports) |
 
 ## `country_ranking.csv`
 
@@ -207,13 +210,13 @@ to write a file that breaks it, and CI checks that this page matches the code.
 | `other_opex_eur` | float | EUR | 0 –  |  | other operating costs |
 | `store_ebitda_eur` | float | EUR |  |  | store EBITDA |
 
-## `fragrance_market.csv` *(planned)*
+## `fragrance_market.csv`
 
 - **Grain:** one country × year
 - **Key:** `country_code`, `year`
 - **Produced by:** `extract/comext.py (issue #2)`
 - **Countries:** AT, FI, FR, IE, NL, NO
-- **Note:** Eurostat Comext HS 3303. Apparent consumption = imports - exports (corrects NL re-exports). Norway may be missing (not in Comext): leave it out rather than invent it.
+- **Note:** Eurostat Comext HS 3303, Norway from Statistics Norway 08801. Apparent consumption = imports - exports (corrects NL re-exports). Empty for a net exporter (France): trade data can't measure its market.
 
 | Column | Type | Unit | Range / values | Empty allowed | Description |
 |---|---|---|---|---|---|
@@ -221,43 +224,95 @@ to write a file that breaks it, and CI checks that this page matches the code.
 | `year` | int | year | 2015 – 2030 |  | calendar year |
 | `imports_eur` | float | EUR | 0 –  |  | imports of HS 3303 from the world |
 | `exports_eur` | float | EUR | 0 –  |  | exports of HS 3303 to the world |
-| `apparent_consumption_eur` | float | EUR |  |  | imports minus exports (can be negative for a re-export hub) |
-| `per_capita_eur` | float | EUR |  |  | apparent consumption per inhabitant |
-| `source` | str |  |  |  | dataset id or URL |
+| `apparent_consumption_eur` | float | EUR | 0 –  | yes | imports minus exports; empty when <= 0 (net exporter) |
+| `per_capita_eur` | float | EUR | 0 –  | yes | apparent consumption per inhabitant |
+| `source` | str |  |  |  | dataset id |
 
-## `fragrance_prices.csv` *(planned)*
+## `fragrance_prices.csv`
 
-- **Grain:** one fragrance product × country
+- **Grain:** one perfume × country
 - **Key:** `country_code`, `product_id`
-- **Produced by:** `extract/prices.py (issue #3)`
+- **Produced by:** `extract/lookfantastic.py + transform/fragrance_prices.py (issue #3)`
+- **Countries:** AT, FR, IE, NL
+- **Note:** Single bottles only (no sets). Online shelf prices, VAT included.
+
+| Column | Type | Unit | Range / values | Empty allowed | Description |
+|---|---|---|---|---|---|
+| `product_id` | id |  |  |  | LOOKFANTASTIC product id (same id in every country) |
+| `title` | str |  |  |  | product name as shown on the site |
+| `price_eur` | float | EUR | 0.01 –  |  | shelf price incl. VAT |
+| `rrp_eur` | float | EUR | 0.01 –  | yes | recommended retail price incl. VAT |
+| `volume_ml` | float | ml | 1 – 1000 |  | bottle size parsed from the name |
+| `fragrance_type` | str |  | EDP, EDT, EDC, Parfum |  | concentration |
+| `is_set` | bool |  |  |  | gift set (always False after cleaning) |
+| `is_refill` | bool |  |  |  | refill bottle |
+| `product_url` | str |  |  |  | product page path |
+| `country_code` | str | ISO 3166-1 | AT, FR, IE, NL |  | country |
+| `brand` | str |  | 9 listed values |  | brand name |
+| `page_url` | str |  |  |  | brand listing page scraped |
+| `scrape_date` | str | date |  |  | day of the scrape |
+| `source` | str |  |  |  | source name |
+| `vat_standard_rate` | float | fraction | 0 – 0.3 |  | standard VAT rate (country_facts.csv) |
+| `price_ex_vat_eur` | float | EUR | 0.01 –  |  | price / (1 + VAT rate) |
+| `price_per_ml` | float | EUR/ml | 0.001 – 50 |  | price incl. VAT per ml |
+| `price_ex_vat_per_ml` | float | EUR/ml | 0.001 – 50 |  | price ex-VAT per ml |
+| `discount_pct` | float | % | 0 – 100 | yes | discount vs recommended retail price |
+
+## `fragrance_price_summary.csv`
+
+- **Grain:** one scraped country
+- **Key:** `country_code`
+- **Produced by:** `transform/fragrance_prices.py (issue #3)`
 - **Countries:** AT, FR, IE, NL
 
 | Column | Type | Unit | Range / values | Empty allowed | Description |
 |---|---|---|---|---|---|
 | `country_code` | str | ISO 3166-1 | AT, FR, IE, NL |  | country |
-| `product_id` | id |  |  |  | LOOKFANTASTIC product id |
-| `brand` | str |  |  |  | brand slug |
-| `name` | str |  |  |  | product name |
-| `volume_ml` | float | ml | 1 – 1000 |  | bottle size parsed from the name |
-| `price_eur` | float | EUR | 0.01 –  |  | shelf price incl. VAT |
-| `price_excl_vat_eur` | float | EUR | 0.01 –  |  | price / (1 + VAT rate) |
-| `price_per_ml` | float | EUR/ml | 0.001 – 50 |  | price incl. VAT per ml |
-| `index_vs_fr` | float | FR=100 | 20 – 500 |  | price vs the same product in France |
+| `vat_standard_rate` | float | fraction | 0 – 0.3 |  | standard VAT rate |
+| `n_products` | int | count | 1 –  |  | perfumes kept after cleaning |
+| `n_brands` | int | count | 1 –  |  | brands found on the country site |
+| `median_price_eur` | float | EUR | 0 –  |  | median shelf price incl. VAT |
+| `median_price_per_ml` | float | EUR/ml | 0 –  |  | median price per ml incl. VAT |
+| `median_price_ex_vat_per_ml` | float | EUR/ml | 0 –  |  | median price per ml ex-VAT |
+| `median_discount_pct` | float | % | 0 – 100 | yes | median discount vs recommended price |
+| `n_products_matched_fr` | int | count | 0 –  |  | products also sold in France |
+| `price_index_vs_fr` | float | FR=100 | 20 – 500 |  | median price vs the same product in France |
+| `price_ex_vat_index_vs_fr` | float | FR=100 | 20 – 500 |  | same, before VAT |
 
 ## `fragrance_competition.csv` *(planned)*
 
 - **Grain:** one country
 - **Key:** `country_code`
-- **Produced by:** `extract/osm.py + analysis (issue #4)`
+- **Produced by:** `extract/osm.py + transform/fragrance_competition.py (issue #4)`
 - **Countries:** AT, FI, FR, IE, NL, NO
-- **Note:** fragrance_skus_eligible_pct comes from the SIMULATED catalogue.
+- **Note:** Optional step: removed when the perfumery extract fails. fragrance_skus_eligible_pct comes from the SIMULATED catalogue. Shares are of shop count, not of sales.
 
 | Column | Type | Unit | Range / values | Empty allowed | Description |
 |---|---|---|---|---|---|
 | `country_code` | str | ISO 3166-1 | AT, FI, FR, IE, NL, NO |  | country |
-| `perfumeries` | int | count | 0 –  |  | OpenStreetMap shop=perfumery + tracked perfumery chains |
+| `perfumeries` | int | count | 0 –  |  | OpenStreetMap shop=perfumery + perfumery-chain stores |
 | `perfumeries_per_100k` | float | per 100k | 0 –  |  | perfumeries per 100,000 inhabitants |
-| `top3_share` | float | fraction | 0 – 1 |  | share of perfumeries held by the 3 largest chains |
-| `leader` | str |  |  |  | largest perfumery chain |
+| `top3_share` | float | fraction | 0 – 1 | yes | share of perfumeries held by the 3 largest chains |
+| `leader` | str |  |  | yes | largest perfumery chain |
 | `fragrance_skus_eligible_pct` | float | % | 0 – 100 |  | share of French fragrance SKUs sellable (simulated) |
+| `perfumeries_per_100k_top5_cities` | float | per 100k | 0 –  | yes | perfumeries within 10 km of the top-5 cities |
+| `independent_share` | float | fraction | 0 – 1 | yes | share of perfumeries that are independents |
+| `small_sample` | bool |  |  |  | fewer than 100 shops: shares are fragile |
+| `fragrance_skus_source` | str |  |  |  | always 'simulated internal catalogue' |
+
+## `fragrance_assortment.csv` *(planned)*
+
+- **Grain:** one country × exclusion reason
+- **Key:** `country_code`, `reason`
+- **Produced by:** `transform/fragrance_competition.py (issue #4)`
+- **Countries:** AT, FI, FR, IE, NL, NO
+- **Note:** SIMULATED catalogue.
+
+| Column | Type | Unit | Range / values | Empty allowed | Description |
+|---|---|---|---|---|---|
+| `country_code` | str | ISO 3166-1 | AT, FI, FR, IE, NL, NO |  | country |
+| `reason` | str |  |  |  | 'eligible' or why the SKU is excluded |
+| `skus` | int | count | 0 –  |  | fragrance SKUs |
+| `pct_of_fragrance_skus` | float | % | 0 – 100 |  | share of all fragrance SKUs |
+| `source` | str |  |  |  | always 'simulated internal catalogue' |
 

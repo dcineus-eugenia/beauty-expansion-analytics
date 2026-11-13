@@ -218,25 +218,40 @@ of the mature sales target in year 1, and (c) exclusive brands and a strong loya
 ICI Paris XL and Douglas, plus securing the ~9 % of sales currently held by exclusive local distributors.
 
 ### Fragrance deep-dive
-Fragrance is Sephora's core category. This section looks at it on its own (dashboard tab "🌸 Fragrance", slide in
-`docs/slides/fragrance.md`).
+Fragrance is Sephora's core category. This section looks at it on its own (dashboard tab "🌸 Fragrance", a slide in
+the Comex deck).
 
-**Does the Netherlands stay first when fragrance is scored?** _To be completed once the scenario "Fragrance focus" has run._
+**Does the Netherlands stay first when fragrance is scored?** Yes. In the "Fragrance focus" scenario the Market axis is
+measured on the fragrance market instead of total personal care. The Netherlands still wins (78.1), 6.8 points ahead of
+Ireland (71.2). Austria drops from second to third (63.6) because its fragrance market grows more slowly.
 
 **Insights**
-1. _To be completed (market per capita and growth)._
-2. _To be completed (Rotterdam re-export effect)._
-3. _To be completed (prices and competition)._
+1. **Market per inhabitant (2025):** Ireland €28.8, the Netherlands €25.3, Austria €24.0, Norway €18.0, Finland €7.6
+   (customs values, not retail sales). Growth 2019–2025 is 7–21 % a year everywhere. The Dutch 16 % is flattered by a weak
+   2019; from 2022 it is 10 %, the same as Austria and Ireland.
+2. **The Rotterdam effect:** the Netherlands imported €1.9bn of perfume in 2025 but re-exported 76 % of it. Its own market
+   is about €457M. Raw imports would have overstated it fourfold.
+3. **Same price, different margin:** the same perfume costs the same online in France, the Netherlands, Austria and Ireland
+   (median index 100, €1.38/ml). Higher VAT is absorbed by the retailer: before VAT, prices are 0.8 % lower in the
+   Netherlands and 2.4 % lower in Ireland. This confirms the main study's finding that prices are harmonised.
+4. **Competition:** the Netherlands has 2.1 perfumeries per 100k inhabitants (France 2.5) and ICI Paris XL leads; the 3
+   biggest chains hold 62 % of shops. Ireland, Finland and Norway have fewer than 100 mapped perfumeries, so their shares
+   are fragile.
+5. **Range (simulated catalogue):** 90 % of the French fragrance SKUs can be sold in the Netherlands; the other 10 % are
+   held by exclusive local distributors. Shipping is simple: retail bottles travel from Düren as ADR "limited quantities"
+   (`data/manual/README.md`).
 
 **Sources of the fragrance figures**
-| Figure | Source | Produced by | Status |
+| Figure | Source | Produced by | File |
 |---|---|---|---|
-| Apparent consumption, imports, per capita, growth (HS 3303) | Eurostat Comext DS-045409, Statistics Norway 08801, Eurostat demo_pjan | issue #2 (`fragrance_market.csv`) | in `main` |
-| Price per ml, like-for-like price index | LOOKFANTASTIC scraper (FR, NL, AT, IE) | issue #3 (`fragrance_price_summary.csv`) | open PR |
-| Perfumeries per 100k, leader, top-3 share | OpenStreetMap (`shop=perfumery` + chains) | issue #4 (`fragrance_competition.csv`) | open PR |
+| Apparent consumption, imports, per capita, growth (HS 3303) | Eurostat Comext DS-045409, Statistics Norway 08801, Eurostat demo_pjan | issue #2 | `fragrance_market.csv` |
+| Price per ml, like-for-like price index | LOOKFANTASTIC scraper (FR, NL, AT, IE), 9 brands, 1,381 perfumes | issue #3 | `fragrance_prices.csv`, `fragrance_price_summary.csv` |
+| Perfumeries per 100k, leader, top-3 share | OpenStreetMap (`shop=perfumery` + chains) | issue #4 | `fragrance_competition.csv` |
+| Sellable fragrance SKUs | simulated internal catalogue | issue #4 | `fragrance_assortment.csv` |
 
 Limits: customs values are not retail prices; France cannot be measured with trade data (net exporter); Finland and
-Norway have no LOOKFANTASTIC site.
+Norway have no LOOKFANTASTIC site; Carolina Herrera and Jean Paul Gaultier are missing on the Austrian site; Ireland is
+under-mapped in OpenStreetMap.
 
 ### Correction log
 A first run sent Ireland's supply through Sephora UK's Coventry hub, which made Ireland look closer (495 km) and
