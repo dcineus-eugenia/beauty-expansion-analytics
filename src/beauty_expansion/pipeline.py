@@ -1,7 +1,8 @@
 """Run the whole study end to end.
 
     python -m beauty_expansion.pipeline            # uses cached downloads when present
-    python -m beauty_expansion.pipeline --refresh  # re-download Eurostat, OpenStreetMap and customs data
+    python -m beauty_expansion.pipeline --refresh  # re-download Eurostat, OpenStreetMap, customs data and
+                                                   #   re-scrape LOOKFANTASTIC perfume prices (~5 min)
 
 Steps: extract -> transform -> load (DuckDB star schema) -> KPIs -> scoring -> business case -> decision -> AI summary.
 Outputs land in data/processed/ (CSV + warehouse.duckdb + ai_summary.json); the Streamlit app reads them.
@@ -18,7 +19,7 @@ from beauty_expansion.analysis import ai_summary, business_case, decision, kpis,
 from beauty_expansion.extract import comext, eurostat, internal, lvmh, osm, prices
 from beauty_expansion.transform import fragrance_competition
 from beauty_expansion.load import warehouse
-from beauty_expansion.transform import geo
+from beauty_expansion.transform import fragrance_prices, geo
 
 
 def run(refresh: bool = False) -> None:
@@ -52,6 +53,9 @@ def run(refresh: bool = False) -> None:
         fragrance_competition.run(perfumeries, stores, cities, macro, catalogue)
     catchment = geo.catchment_density(stores, cities)
     fragrance = comext.fragrance_market(trade, macro)     # imports - exports, per capita (fragrance, HS 3303)
+    # Perfume shelf prices (LOOKFANTASTIC FR/NL/AT/IE): price per ml, ex-VAT index vs France.
+    # Writes data/processed/fragrance_prices.csv and fragrance_price_summary.csv
+    perfume_prices, perfume_price_summary = fragrance_prices.run(refresh=refresh)
 
     print("3/6 Load star schema ->", config.DB_PATH.relative_to(config.ROOT))
     con = warehouse.connect()
@@ -98,5 +102,5 @@ def run(refresh: bool = False) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--refresh", action="store_true", help="re-download Eurostat, OpenStreetMap and customs data")
+    parser.add_argument("--refresh", action="store_true", help="re-download Eurostat, OpenStreetMap, customs data and LOOKFANTASTIC prices")
     run(parser.parse_args().refresh)

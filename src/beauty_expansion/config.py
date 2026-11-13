@@ -124,3 +124,37 @@ DECISION_MIN_NPV = 0                         # ...and positive 5-year NPV
 # AI summary
 # ---------------------------------------------------------------------------
 CLAUDE_MODEL = "claude-opus-5-5"
+# ---------------------------------------------------------------------------
+# Fragrance prices: LOOKFANTASTIC scraper (issue #3)
+# ---------------------------------------------------------------------------
+# One online retailer present in FR + 3 candidates, so prices are comparable like for like.
+# Finland and Norway have no LOOKFANTASTIC site: they are left out of this analysis.
+# Scraping rules: https://www.lookfantastic.fr/robots.txt (brand pages and ?pageNumber= allowed;
+# sort/filter/search URLs are disallowed and never used).
+LOOKFANTASTIC_SITES = {
+    "FR": "https://www.lookfantastic.fr",
+    "NL": "https://www.lookfantastic.nl",
+    "AT": "https://www.lookfantastic.at",
+    "IE": "https://www.lookfantastic.ie",
+}
+
+# Brand name -> (URL slug, extra listing suffixes to try first).
+# The "all products" page has a different name depending on the brand (view-all/, all/,
+# all-lancome/, view-all-jpg/...), checked by hand on 2026-11-12.
+FRAGRANCE_BRANDS = {
+    "Giorgio Armani": ("giorgio-armani", []),
+    "Carolina Herrera": ("carolina-herrera", []),
+    "Hugo Boss": ("hugo-boss", []),
+    "Jean Paul Gaultier": ("jean-paul-gaultier", ["view-all-jpg"]),
+    "Yves Saint Laurent": ("yves-saint-laurent", []),
+    "Lancôme": ("lancome", ["all-lancome"]),
+    "Paco Rabanne": ("paco-rabanne", []),
+    # Dior replacement (Dior is not sold on the NL and IE sites). Both exist in the 4 countries:
+    # keep ONE of the two lines below.
+    "Prada": ("prada", []),
+    "Valentino": ("valentino", []),
+}
+
+SCRAPER_USER_AGENT = "beauty-expansion-analytics student project (Eugenia School)"
+SCRAPER_DELAY_S = 2.0      # pause between two requests, to stay polite with the site
+SCRAPER_MAX_PAGES = 10     # safety stop per brand listing
