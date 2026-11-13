@@ -291,9 +291,14 @@ with tabs[7]:
 
 # ---------------------------------------------------------------- fragrance
 with tabs[8]:
-    st.caption("Fragrance (perfumes and toilet waters, HS 3303) is measured on its own: customs data for the market, "
-               "LOOKFANTASTIC for prices, OpenStreetMap for perfumeries.")
     fm, fp, fc = d["frag_market"], d["frag_prices"], d["frag_comp"]
+
+    def fbar(df: pd.DataFrame, col: str, title: str, fmt: str, ref: float | None = None):
+        """bar() for this tab: sorted high to low, no axis title, room on the right so the labels aren't cut."""
+        df = df.sort_values(col, ascending=False)
+        fig = bar(df, col, None, title, fmt, "", ref)
+        fig.update_xaxes(range=[0, max(df[col].max(), ref or 0) * 1.2])
+        return fig
 
     # --- market (issue #2)
     if fm is None:
@@ -302,16 +307,12 @@ with tabs[8]:
         latest = fm.sort_values("year").groupby("country_code").tail(1).set_index("country_code")
         year = int(latest["year"].max())
         a, b = st.columns(2)
-        pc = latest[["per_capita_eur"]].dropna()
-        a.plotly_chart(bar(pc, "per_capita_eur", None, f"Fragrance market per inhabitant, {year} (€)", ".1f", "€ per inhabitant"),
+        a.plotly_chart(fbar(latest[["per_capita_eur"]].dropna(), "per_capita_eur", f"Market per inhabitant, {year} (€)", ".1f"),
                        width="stretch")
-        a.caption("Apparent consumption = imports − exports of HS 3303 (customs values, not retail prices). "
-                  "France is a net exporter (exports 10x imports), so its market can't be measured this way: "
-                  "no reference line here. Source: Eurostat Comext DS-045409, Statistics Norway 08801.")
+        a.caption("France: not measurable (net exporter)")
         growth = (comext.cagr(fm).dropna() * 100).to_frame("cagr")
-        b.plotly_chart(bar(growth, "cagr", None, "Fragrance market growth, CAGR 2019 → 2025 (%)", ".1f", "% per year"),
-                       width="stretch")
-        b.caption("The Dutch growth is an upper bound: some Rotterdam transit remains in imports − exports.")
+        b.plotly_chart(fbar(growth, "cagr", f"Market growth, CAGR 2019 → {year} (%)", ".1f"), width="stretch")
+        b.caption("Netherlands: upper bound (Rotterdam transit)")
 
         nl = fm[fm["country_code"] == "NL"].sort_values("year")
         fig = go.Figure()
@@ -320,11 +321,11 @@ with tabs[8]:
         fig.add_bar(x=nl["year"], y=nl["apparent_consumption_eur"] / 1e6, name="Apparent consumption (imports − exports)",
                     marker=dict(color=FOCUS, cornerradius=4),
                     hovertemplate="%{x}: %{y:,.0f} M€<extra>Apparent consumption</extra>")
-        fig.update_layout(title="Netherlands: raw imports vs apparent consumption (M€), the Rotterdam re-export effect",
+        fig.update_layout(title="Netherlands: raw imports vs apparent consumption (M€)",
                           barmode="group", height=360, margin=dict(l=10, r=10, t=50, b=10),
                           legend=dict(orientation="h", y=-0.15))
         st.plotly_chart(fig, width="stretch")
-        st.caption("Most Dutch imports leave again (exports), so raw imports overstate the local market.")
+        st.caption("Most Dutch imports are re-exported")
 
     # --- prices (issue #3)
     st.markdown("#### Prices")
@@ -333,13 +334,12 @@ with tabs[8]:
     else:
         fp = fp.set_index("country_code")
         a, b = st.columns(2)
-        a.plotly_chart(bar(fp[["price_ex_vat_index_vs_fr"]].dropna(), "price_ex_vat_index_vs_fr", None,
-                           "Perfume price index ex-VAT, same products (France = 100)", ".1f", "index", 100), width="stretch")
-        b.plotly_chart(bar(fp[["median_price_per_ml"]].dropna(), "median_price_per_ml", None,
-                           "Median perfume price per ml, incl. VAT (€/ml)", ".2f", "€ per ml",
-                           fp["median_price_per_ml"].get("FR")), width="stretch")
-        st.caption("Online prices on LOOKFANTASTIC only (FR, NL, AT, IE); Finland and Norway have no site. "
-                   "Source: issue #3 scraper.")
+        a.plotly_chart(fbar(fp[["price_ex_vat_index_vs_fr"]].dropna(), "price_ex_vat_index_vs_fr",
+                            "Price index ex-VAT, same products (France = 100)", ".1f", 100), width="stretch")
+        b.plotly_chart(fbar(fp[["median_price_per_ml"]].dropna(), "median_price_per_ml",
+                            "Median price per ml, incl. VAT (€/ml)", ".2f", fp["median_price_per_ml"].get("FR")),
+                       width="stretch")
+        st.caption("Finland, Norway: no online prices")
 
     # --- competition (issue #4)
     st.markdown("#### Competition")
@@ -348,15 +348,17 @@ with tabs[8]:
     else:
         fc = fc.set_index("country_code")
         a, b = st.columns(2)
-        a.plotly_chart(bar(fc[["perfumeries_per_100k"]], "perfumeries_per_100k", None,
-                           "Perfumeries per 100k inhabitants", ".1f", "shops / 100k",
-                           fc["perfumeries_per_100k"].get("FR")), width="stretch")
-        share = fc[["top3_share"]].dropna() * 100
-        b.plotly_chart(bar(share, "top3_share", None, "Share of perfumeries held by the 3 biggest chains (%)", ".0f", "% of shops"),
-                       width="stretch")
+        # Whole country: all perfumeries / national population (the 5-city figure of the README is another basis)
+        a.plotly_chart(fbar(fc[["perfumeries_per_100k"]], "perfumeries_per_100k",
+                            "Perfumeries per 100k inhabitants, whole country", ".1f",
+                            fc["perfumeries_per_100k"].get("FR")), width="stretch")
+        b.plotly_chart(fbar(fc[["top3_share"]].dropna() * 100, "top3_share",
+                            "Share of shops held by the 3 biggest chains (%)", ".0f"), width="stretch")
+        leaders = [f"{names[c]} {fc.loc[c, 'leader']}" for c in fc.index if pd.notna(fc.loc[c, "leader"])]
+        if leaders:
+            st.caption("Leading chain: " + " · ".join(leaders))
         if "small_sample" in fc:
             fragile = [names[c] for c in fc.index[fc["small_sample"].fillna(False).astype(bool)]]
             if fragile:
-                st.caption("Few perfumeries in OpenStreetMap for " + ", ".join(fragile) + ": their shares are fragile.")
-        st.caption("Shares are of shop count, not of sales. Source: OpenStreetMap (issue #4).")
+                st.caption(", ".join(fragile) + ": few shops on OpenStreetMap, shares are fragile")
     comment("fragrance")

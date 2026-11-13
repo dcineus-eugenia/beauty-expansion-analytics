@@ -80,6 +80,7 @@ Sephora is in Belfast (UK, February 2026). See `data/manual/sephora_presence.csv
 6. **Source anomaly kept, not fixed:** LVMH's ESG Data Book 2025 business-group headcounts sum to 211,551 vs a published total of 211,552. We use the detailed figures.
 7. **Decision rule** (written before the results, `analysis/decision.py`): shortlist by score. If the top two are within 2 points, the higher base-case NPV wins. Then: **GO** = NPV > 0, payback ≤ 4 years, pessimistic NPV > 0. **CONDITIONAL GO** = NPV > 0 but a condition fails. **NO-GO** = NPV ≤ 0.
 8. **Net exporters aren't measured with trade data:** when fragrance imports − exports ≤ 0 (France), the fragrance market is left missing, not shown as negative.
+9. **Fragrance focus is a stress test, not the score:** it re-weights the Market axis on the fragrance market and never replaces the base ranking. Because the Dutch fragrance level is an upper bound, its result is read together with the break-even check in the fragrance deep-dive (§4).
 
 ## 3. Architecture & data sources
 
@@ -221,22 +222,32 @@ ICI Paris XL and Douglas, plus securing the ~9 % of sales currently held by excl
 Fragrance is Sephora's core category. This section looks at it on its own (dashboard tab "🌸 Fragrance", a slide in
 the Comex deck).
 
-**Does the Netherlands stay first when fragrance is scored?** Yes. In the "Fragrance focus" scenario the Market axis is
-measured on the fragrance market instead of total personal care. The Netherlands still wins (78.1), 6.8 points ahead of
-Ireland (71.2). Austria drops from second to third (63.6) because its fragrance market grows more slowly.
+**Does the Netherlands stay first when fragrance is scored? Yes, with a condition.** In the "Fragrance focus" scenario the
+Market axis (30 %, same 12 / 10 / 8 weights) is measured on the fragrance market instead of total personal care. The
+Netherlands still wins (78.1), 6.8 points ahead of Ireland (71.2), and is first in all 6 scenarios. Austria drops from
+second to third (63.6) because its fragrance market grows more slowly. But the Dutch fragrance market is an **upper
+bound** (Rotterdam transit, see below). **Rough estimate:** if the true Dutch level were about 40 % below the customs
+estimate (≈ €270 M instead of €457 M), Ireland would overtake. Method: lower the Dutch market size and per-head figures
+by the same percentage, keep its growth, re-run the scoring with the "Fragrance focus" weights and find the point where
+both scores are equal (NL 78.1 → 73.1, IE 71.2 → 73.1). Reproduce it with
+`python -m beauty_expansion.analysis.fragrance_breakeven` (after the pipeline). Limits of this estimate: it assumes the
+same percentage error on size and per-head figures, and keeps the Dutch growth, which is probably an upper bound too.
+The Dutch series itself moved between €157 M (2021) and €342 M (2022). The base score (79.7) doesn't use these figures.
 
 **Insights**
 1. **Market per inhabitant (2025):** Ireland €28.8, the Netherlands €25.3, Austria €24.0, Norway €18.0, Finland €7.6
-   (customs values, not retail sales). Growth 2019–2025 is 7–21 % a year everywhere. The Dutch 16 % is flattered by a weak
-   2019; from 2022 it is 10 %, the same as Austria and Ireland.
-2. **The Rotterdam effect:** the Netherlands imported €1.9bn of perfume in 2025 but re-exported 76 % of it. Its own market
-   is about €457M. Raw imports would have overstated it fourfold.
+   (customs values, not retail sales; France can't be measured, see rule 8). Growth 2019–2025 is 7–21 % a year everywhere
+   (Norway +21.3 %, Finland +16.4 %, Netherlands +16.3 %, Ireland +12.9 %, Austria +7.4 %). The Dutch 16 % is flattered by
+   a weak 2019; from 2022 it is 10 %, the same as Austria and Ireland. At €457 M the Dutch market is 2.9 times Ireland's (€157 M).
+2. **The Rotterdam effect:** the Netherlands imported €1.9bn of perfume in 2025 but re-exported 76 % of it (€1,457 M). Its
+   own market is about €457M, 24 % of imports. Raw imports would have overstated it fourfold, and even €457M is probably too
+   high: this is why the Dutch level is read as an upper bound and the conclusion above carries a condition.
 3. **Same price, different margin:** the same perfume costs the same online in France, the Netherlands, Austria and Ireland
    (median index 100, €1.38/ml). Higher VAT is absorbed by the retailer: before VAT, prices are 0.8 % lower in the
    Netherlands and 2.4 % lower in Ireland. This confirms the main study's finding that prices are harmonised.
-4. **Competition:** the Netherlands has 2.1 perfumeries per 100k inhabitants (France 2.5) and ICI Paris XL leads; the 3
-   biggest chains hold 62 % of shops. Ireland, Finland and Norway have fewer than 100 mapped perfumeries, so their shares
-   are fragile.
+4. **Competition:** the Netherlands has 2.1 perfumeries per 100k inhabitants (France 2.5) and, around its 5 largest cities,
+   4.4 against 9.4 in France. ICI Paris XL leads; the 3 biggest chains hold 62 % of shops (a share of shop count, not of
+   sales). Ireland, Finland and Norway have fewer than 100 mapped perfumeries, so their shares are fragile.
 5. **Range (simulated catalogue):** 90 % of the French fragrance SKUs can be sold in the Netherlands; the other 10 % are
    held by exclusive local distributors. Shipping is simple: retail bottles travel from Düren as ADR "limited quantities"
    (`data/manual/README.md`).
@@ -248,10 +259,11 @@ Ireland (71.2). Austria drops from second to third (63.6) because its fragrance 
 | Price per ml, like-for-like price index | LOOKFANTASTIC scraper (FR, NL, AT, IE), 9 brands, 1,381 perfumes | issue #3 | `fragrance_prices.csv`, `fragrance_price_summary.csv` |
 | Perfumeries per 100k, leader, top-3 share | OpenStreetMap (`shop=perfumery` + chains) | issue #4 | `fragrance_competition.csv` |
 | Sellable fragrance SKUs | simulated internal catalogue | issue #4 | `fragrance_assortment.csv` |
+| Scenario "Fragrance focus" and Dutch break-even | Weights in `config.py` (ASSUMPTION), KPIs from `fragrance_market.csv` | issue #5 | `sensitivity.csv`, `analysis/fragrance_breakeven.py` |
 
-Limits: customs values are not retail prices; France cannot be measured with trade data (net exporter); Finland and
-Norway have no LOOKFANTASTIC site; Carolina Herrera and Jean Paul Gaultier are missing on the Austrian site; Ireland is
-under-mapped in OpenStreetMap.
+Limits: customs values are not retail prices; France cannot be measured with trade data (net exporter); the Dutch figures
+are an upper bound; Finland and Norway have no LOOKFANTASTIC site; Carolina Herrera and Jean Paul Gaultier are missing on
+the Austrian site; Ireland is under-mapped in OpenStreetMap (Ireland, Finland and Norway have `small_sample` = True).
 
 ### Correction log
 A first run sent Ireland's supply through Sephora UK's Coventry hub, which made Ireland look closer (495 km) and
@@ -323,7 +335,7 @@ src/beauty_expansion/
   extract/              eurostat.py · osm.py · prices.py (scraper) · comext.py (customs) · lvmh.py · internal.py (simulated)
   transform/geo.py      distances, catchment areas
   load/warehouse.py     DuckDB star schema loader
-  analysis/             kpis.py · scoring.py · business_case.py · decision.py · ai_summary.py
+  analysis/             kpis.py · scoring.py · business_case.py · decision.py · ai_summary.py · fragrance_breakeven.py
   contracts.py          data contracts: grain, columns, units, ranges of every output file
   pipeline.py           one command, end to end
 sql/schema.sql          star schema

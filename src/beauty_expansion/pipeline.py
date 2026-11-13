@@ -86,7 +86,7 @@ def run(refresh: bool = False) -> None:
 
     print("6/6 Decision and AI summary")
     verdict = decision.decide(ranking, case)
-    ai_summary.generate(k, ranking, sens, case, verdict)
+    ai_summary.generate(k, ranking, sens, case, verdict, fragrance)
 
     # Flat exports for the dashboard / Power BI users. Each file is checked against its data contract
     # (contracts.py) before it is written, so a broken file never reaches the dashboard.
