@@ -47,6 +47,12 @@ DRUGSTORE_BRANDS = [
     "dm", "Rossmann", "Müller", "Bipa", "Kruidvat", "Etos", "HEMA", "Boots", "Superdrug",
     "Normal", "Vita", "Matas", "Life",
 ]
+# Selective chains that sell fragrance as a core category (issue #4). OSM often tags them shop=cosmetics,
+# not shop=perfumery, so the fragrance competition counts them from the brand query as well.
+PERFUMERY_CHAINS = [
+    "Sephora", "Douglas", "ICI PARIS XL", "Marionnaud", "Nocibé", "KICKS", "Sokos Emotion",
+    "Fredrik & Louisa", "Parfymeriet",
+]
 
 # ---------------------------------------------------------------------------
 # Scoring weights (must sum to 1). Defended in the README, section "KPI choice".

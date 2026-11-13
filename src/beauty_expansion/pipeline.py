@@ -15,6 +15,7 @@ import pandas as pd
 from beauty_expansion import config
 from beauty_expansion.analysis import ai_summary, business_case, decision, kpis, scoring
 from beauty_expansion.extract import comext, eurostat, internal, lvmh, osm, prices
+from beauty_expansion.transform import fragrance_competition
 from beauty_expansion.load import warehouse
 from beauty_expansion.transform import geo
 
@@ -26,6 +27,7 @@ def run(refresh: bool = False) -> None:
     print("1/6 Extract")
     macro = eurostat.extract_all(countries, refresh=refresh)
     stores, cities = osm.extract_all(countries, refresh=refresh)
+    perfumeries = osm.extract_perfumeries(countries, refresh=refresh)   # shop=perfumery, chains + independents
     price_table = prices.extract_all()
     trade = comext.extract_all(countries, refresh=refresh)
     group_fin = lvmh.selective_retailing()
@@ -39,6 +41,8 @@ def run(refresh: bool = False) -> None:
 
     print("2/6 Transform")
     stores = geo.add_nearest_hub(stores, hubs)
+    # Who sells fragrance, and how much of the French fragrance range is sellable (issue #4)
+    fragrance_competition.run(perfumeries, stores, cities, macro, catalogue)
     catchment = geo.catchment_density(stores, cities)
     fragrance = comext.fragrance_market(trade, macro)     # imports - exports, per capita (fragrance, HS 3303)
 

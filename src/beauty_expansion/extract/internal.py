@@ -96,14 +96,20 @@ def catalogue() -> pd.DataFrame:
     })
     df["unit_cost_eur"] = (df["price_fr_incl_vat_eur"] / 1.20 * cost_rate).round(2)
 
-    # Eligibility flags per country, decided at BRAND level (a distribution contract covers a whole brand)
+    # Eligibility flags per country, decided at BRAND level (a distribution contract covers a whole brand).
+    # The random draws keep the same order as before, so eligible_{cc} is unchanged; exclusion_{cc} only
+    # names the reason (if a SKU has several, exclusive distributor > label language > alcohol approval).
     brand_rng = np.random.default_rng(config.RANDOM_SEED + 2)
     brands = df["brand_id"].unique()
     for cc, rate in EXCLUSIVE_DISTRIBUTION_RATE.items():
         locked = set(brands[brand_rng.random(len(brands)) < rate])
-        df[f"eligible_{cc}"] = ~(
-            (df["brand_type"] == "selective_brand") & df["brand_id"].isin(locked)        # exclusive distributor
-            | (df["brand_type"] == "sephora_collection") & (not PRIVATE_LABEL_READY[cc])  # labels not translated
-            | (cc == "NO") & df["alcohol_based"] & (brand_rng.random(n) < 0.30)          # NO alcohol approval pending
-        )
+        exclusive = (df["brand_type"] == "selective_brand") & df["brand_id"].isin(locked)   # exclusive distributor
+        label = (df["brand_type"] == "sephora_collection") & (not PRIVATE_LABEL_READY[cc])  # labels not translated
+        alcohol = (cc == "NO") & df["alcohol_based"] & (brand_rng.random(n) < 0.30)         # NO alcohol approval pending
+        df[f"eligible_{cc}"] = ~(exclusive | label | alcohol)
+        reason = pd.Series(None, index=df.index, dtype="object")
+        reason[alcohol] = "alcohol_approval_pending"
+        reason[label] = "labels_not_translated"
+        reason[exclusive] = "exclusive_local_distributor"
+        df[f"exclusion_{cc}"] = reason
     return df

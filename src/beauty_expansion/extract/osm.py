@@ -121,6 +121,57 @@ def cities(country_code: str, top: int = 5, refresh: bool = False) -> pd.DataFra
     return df.drop_duplicates("city").head(top).reset_index(drop=True)
 
 
+def _chain(tags: dict, canonical: dict) -> str:
+    """Chain a shop belongs to: known chain spelling first, then its OSM `brand` tag, else 'independent'."""
+    for key in ("brand", "name"):
+        hit = canonical.get(tags.get(key, "").strip().lower())
+        if hit:
+            return hit
+    return tags.get("brand", "").strip() or "independent"
+
+
+def perfumeries(country_code: str, refresh: bool = False) -> pd.DataFrame:
+    """Every shop tagged shop=perfumery in one country, chains AND independents (issue #4).
+
+    The brand query in stores() only finds the chains we list. This one starts from the shop type,
+    so independent perfumeries count too. Definition: https://wiki.openstreetmap.org/wiki/Tag:shop%3Dperfumery
+    """
+    ql = f"""
+    [out:json][timeout:240];
+    area["ISO3166-1"="{country_code}"][admin_level=2]->.a;
+    nwr["shop"="perfumery"](area.a);
+    out tags center;
+    """
+    data = _query(f"perfumeries_{country_code}", ql, refresh)
+    canonical = {b.lower(): b for b in config.SELECTIVE_BRANDS + config.DRUGSTORE_BRANDS}
+    rows = []
+    for el in data["elements"]:
+        tags = el.get("tags", {})
+        point = el.get("center", el)
+        if "lat" not in point:
+            continue
+        rows.append({
+            "osm_id": f"{el['type']}/{el['id']}",
+            "country_code": country_code,
+            "name": tags.get("name"),
+            "chain": _chain(tags, canonical),
+            "segment": "perfumery",
+            "lat": point["lat"],
+            "lon": point["lon"],
+        })
+    columns = ["osm_id", "country_code", "name", "chain", "segment", "lat", "lon"]
+    return pd.DataFrame(rows, columns=columns).drop_duplicates("osm_id")
+
+
+def extract_perfumeries(countries: list[str], refresh: bool = False) -> pd.DataFrame:
+    frames = []
+    for cc in countries:
+        p = perfumeries(cc, refresh)
+        print(f"  osm {cc}: {len(p):>5} perfumeries (shop=perfumery)")
+        frames.append(p)
+    return pd.concat(frames, ignore_index=True)
+
+
 def extract_all(countries: list[str], refresh: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
     store_frames, city_frames = [], []
     for cc in countries:
