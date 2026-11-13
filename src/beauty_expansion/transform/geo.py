@@ -31,9 +31,9 @@ def catchment_density(stores: pd.DataFrame, cities: pd.DataFrame, radius_km: flo
     The output column keeps its historical name `selective_stores_10km` whatever the segment.
     """
     rows = []
-    selective = stores[stores["segment"] == segment]
+    in_segment = stores[stores["segment"] == segment]
     for city in cities.itertuples():
-        s = selective[selective["country_code"] == city.country_code]
+        s = in_segment[in_segment["country_code"] == city.country_code]
         d = haversine_km(s["lat"].values, s["lon"].values, city.lat, city.lon)
         n = int((d <= radius_km).sum())
         rows.append({

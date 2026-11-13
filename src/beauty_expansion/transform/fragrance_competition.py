@@ -21,6 +21,13 @@ from beauty_expansion import config
 from beauty_expansion.transform import geo
 
 CATALOGUE_SOURCE = "simulated internal catalogue"
+OUTPUTS = ("fragrance_competition.csv", "fragrance_assortment.csv")
+
+
+def clear_outputs() -> None:
+    """Remove the outputs of a previous run, so a skipped step never shows stale figures."""
+    for name in OUTPUTS:
+        (config.PROCESSED / name).unlink(missing_ok=True)
 
 
 def latest_population(macro: pd.DataFrame) -> pd.Series:
@@ -76,7 +83,11 @@ def competition(perfumeries: pd.DataFrame, cities: pd.DataFrame, population: pd.
 
 
 def assortment(catalogue: pd.DataFrame) -> tuple[pd.Series, pd.DataFrame]:
-    """% of fragrance SKUs eligible per country, and the exclusion reasons (SIMULATED catalogue)."""
+    """% of fragrance SKUs eligible per country, and the exclusion reasons (SIMULATED catalogue).
+
+    Unweighted: each SKU counts once, as issue #4 asks. The scored KPI `catalogue_eligible_pct`
+    (analysis/kpis.py) weights SKUs by French revenue and covers all categories, so the two differ.
+    """
     frag = catalogue[catalogue["category"] == "fragrance"]
     eligible_pct = pd.Series({cc: frag[f"eligible_{cc}"].mean() * 100 for cc in config.COUNTRIES})
 

@@ -11,6 +11,7 @@ import argparse
 from datetime import date
 
 import pandas as pd
+import requests
 
 from beauty_expansion import config
 from beauty_expansion.analysis import ai_summary, business_case, decision, kpis, scoring
@@ -29,9 +30,10 @@ def run(refresh: bool = False) -> None:
     stores, cities = osm.extract_all(countries, refresh=refresh)
     try:    # optional fragrance step (issue #4): a busy Overpass server must not stop the whole study
         perfumeries = osm.extract_perfumeries(countries, refresh=refresh)   # shop=perfumery, chains + independents
-    except Exception as err:
+    except (requests.RequestException, RuntimeError) as err:    # network error or Overpass timeout only
         perfumeries = None
-        print(f"  WARNING: perfumery extract failed, fragrance competition skipped ({err})")
+        fragrance_competition.clear_outputs()    # never leave an older CSV that looks like today's result
+        print(f"  WARNING: perfumery extract failed, fragrance competition skipped, old outputs removed ({err})")
     price_table = prices.extract_all()
     trade = comext.extract_all(countries, refresh=refresh)
     group_fin = lvmh.selective_retailing()
