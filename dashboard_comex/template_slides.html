@@ -127,10 +127,10 @@
     <div class="bb">
       <div class="team">
         <div><b>Damien</b><span>Pipeline, scoring, business case</span></div>
-        <div><b>Kevin</b><span>Marché du parfum</span></div>
+        <div><b>Kevin</b><span>Marché du parfum (douanes)</span></div>
         <div><b>Stephen</b><span>Prix du parfum</span></div>
-        <div><b>Jude</b><span>Concurrence parfum et dashboard</span></div>
-        <div><b>Natalia</b><span>Scénario parfum et synthèse</span></div>
+        <div><b>Jude</b><span>Concurrence et transport parfum</span></div>
+        <div><b>Natalia</b><span>Dashboard et scénario parfum</span></div>
       </div>
     </div>
   </section>
@@ -169,7 +169,7 @@
       </div>
       <div class="panel"><h3>Schéma en étoile <span>DuckDB · 6 dimensions, 9 faits</span></h3><div class="chart schema" id="sSchema"></div></div>
     </div>
-    <div class="foot"><span>Une commande reconstruit tout : python -m beauty_expansion.pipeline · 11 contrats de données et 78 tests contrôlent chaque fichier</span><span data-pg></span></div>
+    <div class="foot"><span>Une commande reconstruit tout : python -m beauty_expansion.pipeline · 15 contrats de données et 78 tests automatiques contrôlent les fichiers</span><span data-pg></span></div>
   </section>
 
   <!-- 4. KPIs -->
@@ -236,26 +236,26 @@
   <!-- 7. Fragrance market + prices -->
   <section class="slide">
     <div class="eyebrow">07 · Focus parfum</div>
-    <h2>Le marché du parfum néerlandais est le plus gros, et ses prix sont alignés sur la France</h2>
+    <h2>Le parfum confirme les Pays-Bas, à condition de ne pas surestimer leur marché</h2>
     <div class="rule"></div>
     <div class="body cols2">
-      <div class="panel"><h3>Marché du parfum <span>M€, <span data-f="fYear"></span></span></h3><div class="chart" id="sFMarket"></div></div>
-      <div class="panel"><h3>Prix des parfums vs France <span>France = 100, TTC</span></h3><div class="chart" id="sFPrice"></div></div>
+      <div class="panel"><h3>L'effet Rotterdam · Pays-Bas <span>M€, 2019-<span data-f="fYear"></span></span></h3><div class="chart" id="sRotterdam"></div></div>
+      <div class="panel"><h3>Marché du parfum <span>importations − exportations, M€, <span data-f="fYear"></span></span></h3><div class="chart" id="sFMarket"></div></div>
     </div>
-    <p class="take">Les Pays-Bas consomment <b><span data-f="nlFMarket"></span> M€</b> de parfum par an (<b>+<span data-f="nlFGrowth"></span> % par an</b>). Sur <b><span data-f="nlFMatched"></span> parfums identiques</b>, le prix est <b>le même qu'en France</b>.</p>
-    <div class="foot"><span>Sources : Eurostat Comext et Statistics Norway (douanes, HS 3303) · relevé LOOKFANTASTIC de 9 marques · le chiffre néerlandais inclut une part de transit par Rotterdam</span><span data-pg></span></div>
+    <p class="take">Les Pays-Bas importent <b><span data-f="nlFImports"></span> Md€</b> de parfum, mais <b><span data-f="nlFReexp"></span> %</b> repartent via Rotterdam : leur marché est d'<b>au plus <span data-f="nlFMarket"></span> M€</b>, le plus gros des candidats (<b>+<span data-f="nlFGrowth22"></span> % par an</b> depuis 2022). Par habitant, l'Irlande dépense plus (<span data-f="ieFPc"></span> € contre <span data-f="nlFPc"></span> €). Sur <b><span data-f="nlFMatched"></span> parfums identiques</b>, le prix est le même qu'en France.</p>
+    <div class="foot"><span>Sources : Eurostat Comext et Statistics Norway (douanes, HS 3303 : valeurs à l'importation, pas prix de vente) · relevé LOOKFANTASTIC de 9 marques · France non mesurable (exportatrice nette)</span><span data-pg></span></div>
   </section>
 
   <!-- 8. Competition -->
   <section class="slide">
     <div class="eyebrow">08 · Concurrence parfum</div>
-    <h2>De la place pour Sephora, face à deux chaînes bien installées</h2>
+    <h2>De la place dans les grandes villes, face à des chaînes bien installées</h2>
     <div class="rule"></div>
     <div class="body cols2">
       <div class="panel"><h3>Parfumeries pour 100 000 hab. <span>5 plus grandes villes</span></h3><div class="chart" id="sPerf"></div></div>
       <div class="panel"><h3>Part des 3 premières chaînes <span>% des parfumeries</span></h3><div class="chart" id="sTop3"></div></div>
     </div>
-    <p class="take">Dans les grandes villes néerlandaises, on compte <b><span data-f="nlPerf"></span> parfumeries pour 100 000 habitants</b>, contre <b><span data-f="frPerf"></span> en France</b>. Mais <b>ICI Paris XL et Douglas représentent <span data-f="nlTop3"></span> %</b> des parfumeries recensées : Sephora devra gagner avec ses marques exclusives.</p>
+    <p class="take">Dans les 5 plus grandes villes néerlandaises, on compte <b><span data-f="nlPerf"></span> parfumeries pour 100 000 habitants</b>, contre <b><span data-f="frPerf"></span> en France</b> (<span data-f="nlPerfNat"></span> contre <span data-f="frPerfNat"></span> à l'échelle du pays). Mais <b>les 3 premières chaînes, menées par ICI Paris XL, détiennent <span data-f="nlTop3"></span> %</b> des parfumeries recensées : Sephora devra gagner avec ses marques exclusives.</p>
     <div class="foot"><span>Source : OpenStreetMap, novembre 2026 · parts en nombre de magasins, pas en ventes · * moins de 100 parfumeries recensées : chiffre peu fiable</span><span data-pg></span></div>
   </section>
 
@@ -268,13 +268,39 @@
       <div class="panel"><h3>CA et cash-flow · Pays-Bas <span>M€</span></h3><div class="chart" id="sCash"></div></div>
       <div class="panel"><h3>Valeur créée par pays <span>VAN, M€ · trait = ventes −20 %</span></h3><div class="chart" id="sNpv"></div></div>
     </div>
-    <p class="take">VAN de <b><span data-f="npv"></span> M€</b>, et encore <b><span data-f="npvPess"></span> M€</b> si les ventes baissent de 20 %. Le cash reste négatif <b class="red">jusqu'en 2029</b>, le temps d'ouvrir les 15 magasins. L'Irlande crée plus de valeur (<b><span data-f="ieNpv"></span> M€</b>) mais sur un marché <b>3 fois plus petit</b> : c'est le plan B.</p>
+    <p class="take">VAN de <b><span data-f="npv"></span> M€</b>, et encore <b><span data-f="npvPess"></span> M€</b> si les ventes baissent de 20 %. Le cash reste négatif <b class="red">jusqu'en 2029</b>, le temps d'ouvrir les 15 magasins, et <b>l'essentiel de la valeur vient d'après 2031</b>. L'Irlande crée plus de valeur (<b><span data-f="ieNpv"></span> M€</b>) mais sur un marché <b>3 fois plus petit</b> : c'est le plan B.</p>
     <div class="foot"><span>VAN 2027-2031 et valeur terminale, actualisées à 8 % · scénario de base</span><span data-pg></span></div>
+  </section>
+
+  <!-- 10. Limits and checks -->
+  <section class="slide">
+    <div class="eyebrow">10 · Limites et contrôles</div>
+    <h2>Ce que nous avons vérifié, et ce qui reste fragile</h2>
+    <div class="rule"></div>
+    <div class="body cols2b">
+      <div><h4>Vérifié et corrigé</h4>
+        <ul class="list tight">
+          <li><b>Brexit</b> : l'Irlande était d'abord livrée depuis l'entrepôt britannique de Coventry, donc avec douane. Seuls les entrepôts de l'UE comptent désormais : l'Irlande passe de 1re ex aequo à 3e.</li>
+          <li><b>Outre-mer</b> : OpenStreetMap comptait 40 magasins hors d'Europe (Réunion, Guyane, Caraïbes). Une fois retirés, le remboursement néerlandais passe de 5,0 à <span data-f="pay"></span> ans ; le classement ne change pas.</li>
+          <li><b>Contrôles automatiques</b> : 15 contrats de données et 78 tests vérifient chaque fichier à chaque pull request.</li>
+        </ul>
+      </div>
+      <div><h4>Limites qui restent</h4>
+        <ul class="list tight">
+          <li><b>Données internes simulées</b> : P&amp;L des magasins et catalogue, calés sur les vrais totaux de Sephora France.</li>
+          <li><b>OpenStreetMap incomplet</b> : moins de 100 parfumeries recensées en Irlande et dans les pays nordiques.</li>
+          <li><b>Douanes</b> : valeurs à l'importation, et un maximum pour les Pays-Bas. Si leur marché du parfum était environ 40 % plus bas, l'Irlande passerait devant dans le scénario parfum (estimation).</li>
+          <li><b>Prix</b> : relevés sur un seul site en ligne ; les prix en magasin restent à vérifier.</li>
+          <li><b>VAN</b> : l'essentiel vient d'après 2031, et les rénovations de magasins ne sont pas chiffrées.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot"><span>Détail : README, sections « Correction log » et « Data quality » · dashboard interactif : streamlit run app/streamlit_app.py</span><span data-pg></span></div>
   </section>
 
   <!-- 11. AI brick -->
   <section class="slide">
-    <div class="eyebrow">10 · Synthèse IA</div>
+    <div class="eyebrow">11 · Synthèse IA</div>
     <h2>Claude rédige la synthèse, la règle écrite prend la décision</h2>
     <div class="rule"></div>
     <div class="body cols3" style="grid-template-columns: 4fr 6fr">
@@ -301,7 +327,7 @@
 
   <!-- 12. Decision -->
   <section class="slide banded">
-    <div class="bt"><span class="eyebrow">11 · Recommandation au Comex</span><span class="meta">Sephora · Europe 2027</span></div>
+    <div class="bt"><span class="eyebrow">12 · Recommandation au Comex</span><span class="meta">Sephora · Europe 2027</span></div>
     <div class="mid" style="gap:24px">
       <div style="display:flex; gap:14px; align-items:center"><span class="tag inv" data-f="recLabelUp"></span><span style="font-size:15px; color:var(--muted)">VAN <b style="color:var(--ink)"><span data-f="npv"></span> M€</b> · <span data-f="npvPess"></span> M€ si ventes −20 % · <b class="bad"><span data-f="pay"></span> ans</b> pour rembourser un magasin (objectif <span data-f="maxPay"></span>)</span></div>
       <h1 style="font-size:56px">Ouvrir aux Pays-Bas en 2027,<br>par un pilote de 3 magasins.</h1>
@@ -363,6 +389,14 @@ const facts = {
 facts.recLabelUp = facts.recLabel;
 facts.frStores = fmt(DATA.frStores, 0); facts.frRevenue = fmt(DATA.frRevenue, 0);
 facts.aiModel = { "claude-opus-5-5": "Opus 5.5" }[DATA.claudeModel] || DATA.claudeModel;
+/* fragrance slide: Rotterdam re-exports, growth since 2022 (2019 is a weak base year), spend per head */
+const nlF = DATA.fragranceNL, nlFLast = nlF[nlF.length - 1], nlF22 = nlF.find((r) => r.year === 2022);
+facts.nlFImports = fmt(nlFLast.imports_meur / 1000, 1);
+facts.nlFReexp = fmt(nlFLast.exports_meur / nlFLast.imports_meur * 100, 0);
+facts.nlFGrowth22 = fmt((Math.pow(nlFLast.apparent_meur / nlF22.apparent_meur, 1 / (nlFLast.year - 2022)) - 1) * 100, 0);
+facts.ieFPc = fmt(kOf("IE").fragrance_per_capita_eur, 1); facts.nlFPc = fmt(nl.fragrance_per_capita_eur, 1);
+/* competition slide: national density next to the 5-city figure */
+facts.nlPerfNat = fmt(fr(T).perfumeries_per_100k, 1); facts.frPerfNat = fmt(fr("FR").perfumeries_per_100k, 1);
 document.querySelectorAll("[data-f]").forEach((n) => { n.textContent = facts[n.dataset.f] ?? "—"; });
 
 /* charts */
@@ -392,9 +426,7 @@ const cands = candidates.map(kOf);
 hbars("sRank", ranked.map((r) => ({ code: r.code, value: r.score, label: fmt(r.score, 1) })), { aria: "Score d'attractivité" });
 hbars("sMargin", [...cands].sort((a, b) => b.gross_margin_post_tax - a.gross_margin_post_tax).map((r) => ({ code: r.code, value: r.gross_margin_post_tax * 100, label: pct(r.gross_margin_post_tax * 100, 1) })),
   { ref: kOf("FR").gross_margin_post_tax * 100, refLabel: `France ${pct(kOf("FR").gross_margin_post_tax * 100, 1)}`, aria: "Marge après TVA" });
-hbars("sFMarket", cands.filter((r) => r.fragrance_market_meur != null).sort((a, b) => b.fragrance_market_meur - a.fragrance_market_meur).map((r) => ({ code: r.code, value: r.fragrance_market_meur, label: `${fmt(r.fragrance_market_meur, 0)} M€` })), { aria: "Marché du parfum" });
-hbars("sFPrice", DATA.fprices.filter((r) => r.code !== "FR").sort((a, b) => b.price_index_vs_fr - a.price_index_vs_fr).map((r) => ({ code: r.code, value: r.price_index_vs_fr, label: fmt(r.price_index_vs_fr, 0) })),
-  { ref: 100, refLabel: "France 100", aria: "Prix des parfums vs France" });
+hbars("sFMarket", cands.filter((r) => r.fragrance_market_meur != null).sort((a, b) => b.fragrance_market_meur - a.fragrance_market_meur).map((r) => ({ code: r.code, value: r.fragrance_market_meur, label: `${r.code === "NL" ? "≤ " : ""}${fmt(r.fragrance_market_meur, 0)} M€` })), { aria: "Marché du parfum" });
 const fg = DATA.fragrance.filter((r) => r.code !== "FR");
 hbars("sPerf", [...fg].sort((a, b) => b.perfumeries_per_100k_top5_cities - a.perfumeries_per_100k_top5_cities).map((r) => ({ code: r.code, value: r.perfumeries_per_100k_top5_cities, label: fmt(r.perfumeries_per_100k_top5_cities, 1) })),
   { ref: fr("FR").perfumeries_per_100k_top5_cities, refLabel: `France ${fmt(fr("FR").perfumeries_per_100k_top5_cities, 1)}`, aria: "Parfumeries" });
@@ -418,6 +450,31 @@ hbars("sNpv", candidates.map((c) => ({ code: c, value: caseOf(c, "base").plan_np
     svg.appendChild(sv("circle", { cx: X(r.relative_price_index), cy, r: 6, fill: "#fff", stroke: "#0b0b0b", "stroke-width": 1.5 }));
     svg.appendChild(sv("circle", { cx: X(r.effective_price_index), cy, r: 6, fill: est ? "#fff" : "#0b0b0b", stroke: "#0b0b0b", "stroke-width": 1.5, "stroke-dasharray": est ? "2 2" : "none" }));
     svg.appendChild(sv("text", { x: X(r.relative_price_index) + 12, y: cy, dy: "0.35em", "font-weight": sel ? 600 : 400 }, `+${fmt(r.relative_price_index - 100, 0)} %`));
+  });
+})();
+
+/* Rotterdam effect: Dutch raw imports (grey) vs apparent consumption = imports - exports (black) */
+(function () {
+  const box = document.getElementById("sRotterdam"), rows = DATA.fragranceNL;
+  const W = 540, H = 250, m = { t: 34, b: 30, l: 8, r: 8 };
+  const svg = sv("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": "Pays-Bas : importations brutes et marché réel du parfum" }); box.appendChild(svg);
+  const hi = niceMax(Math.max(...rows.map((r) => r.imports_meur)));
+  const Y = (v) => m.t + (hi - v) / hi * (H - m.t - m.b), step = (W - m.l - m.r) / rows.length, cx = (i) => m.l + step * (i + 0.5), w = step * 0.32;
+  [["#cfcac4", "Importations brutes"], ["#0b0b0b", "Marché réel (importations − exportations)"]].forEach(([c, t], i) => {
+    const x = m.l + i * 170;
+    svg.appendChild(sv("rect", { x, y: 2, width: 12, height: 12, fill: c }));
+    svg.appendChild(sv("text", { x: x + 18, y: 12, "font-size": 12, fill: "#6e6a66" }, t));
+  });
+  svg.appendChild(sv("line", { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), stroke: "#0b0b0b" }));
+  rows.forEach((r, i) => {
+    const last = i === rows.length - 1;
+    svg.appendChild(sv("rect", { x: cx(i) - w - 1, y: Y(r.imports_meur), width: w, height: Y(0) - Y(r.imports_meur), fill: "#cfcac4" }));
+    svg.appendChild(sv("rect", { x: cx(i) + 1, y: Y(r.apparent_meur), width: w, height: Y(0) - Y(r.apparent_meur), fill: "#0b0b0b" }));
+    svg.appendChild(sv("text", { x: cx(i), y: H - 8, "text-anchor": "middle", fill: "#6e6a66", "font-size": 12, "font-weight": last ? 600 : 400 }, String(r.year)));
+    if (last) {
+      svg.appendChild(sv("text", { x: cx(i) - w / 2 - 1, y: Y(r.imports_meur) - 6, "text-anchor": "middle", fill: "#6e6a66", "font-size": 12 }, fmt(r.imports_meur, 0)));
+      svg.appendChild(sv("text", { x: cx(i) + w / 2 + 1, y: Y(r.apparent_meur) - 6, "text-anchor": "middle", "font-size": 12, "font-weight": 600 }, fmt(r.apparent_meur, 0)));
+    }
   });
 })();
 

@@ -54,6 +54,14 @@ fragrance = pd.read_csv(P / "fragrance_competition.csv").rename(columns={"countr
 fprices = pd.read_csv(P / "fragrance_price_summary.csv").rename(columns={"country_code": "code"})   # Stephen, issue #3
 fitems = pd.read_csv(P / "fragrance_prices.csv").rename(columns={"country_code": "code"})
 
+# Netherlands customs series (Kevin, issue #2): raw imports vs apparent consumption, for the Rotterdam chart
+fmarket = pd.read_csv(P / "fragrance_market.csv")
+nl_trade = fmarket[fmarket["country_code"] == "NL"].sort_values("year")
+fragrance_nl = pd.DataFrame({
+    "year": nl_trade["year"], "imports_meur": nl_trade["imports_eur"] / 1e6,
+    "exports_meur": nl_trade["exports_eur"] / 1e6, "apparent_meur": nl_trade["apparent_consumption_eur"] / 1e6,
+})
+
 data = {
     "decision": json.loads((P / "decision.json").read_text()),
     "maxPayback": max_payback,
@@ -65,7 +73,8 @@ data = {
     "kpis": records(kpis),
     "fragrance": records(fragrance),
     "fprices": records(fprices),
-    "fmarketYear": int(pd.read_csv(P / "fragrance_market.csv")["year"].max()),
+    "fmarketYear": int(fmarket["year"].max()),
+    "fragranceNL": records(fragrance_nl),     # Rotterdam effect chart of the deck (issue #2)
     "sensitivity": records(pd.read_csv(P / "sensitivity.csv")),
     "nStores": int(len(pd.read_csv(P / "stores.csv"))),
     "fbrands": records(fitems.groupby(["brand", "code"], as_index=False)["price_per_ml"].median()),
@@ -73,7 +82,8 @@ data = {
 }
 
 for template, name in [("template.html", "dashboard_comex.html"), ("template_v2.html", "dashboard_comex_v2.html"), ("template_slides.html", "slides_comex.html")]:
-    html = (HERE / template).read_text().replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False))
+    # explicit UTF-8: on Windows the default is cp1252, which can't write "≤", "−" or "→"
+    html = (HERE / template).read_text(encoding="utf-8").replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False))
     out = HERE / name
-    out.write_text(html)
+    out.write_text(html, encoding="utf-8")
     print(f"wrote {out.relative_to(ROOT)} ({len(html) // 1024} KB)")
