@@ -52,6 +52,17 @@ DRUGSTORE_BRANDS = [
     "dm", "Rossmann", "Müller", "Bipa", "Kruidvat", "Etos", "HEMA", "Boots", "Superdrug",
     "Normal", "Vita", "Matas", "Life",
 ]
+# Selective chains that sell fragrance as a core category (issue #4). OSM often tags them shop=cosmetics,
+# not shop=perfumery, so the fragrance competition counts them from the brand query as well.
+# The Perfume Shop (UK chain, also in Ireland) has no OSM brand tag in Ireland: it's only matched by name
+# among shop=perfumery results, since it isn't in the brand query.
+PERFUMERY_CHAINS = [
+    "Sephora", "Douglas", "ICI PARIS XL", "Marionnaud", "Nocibé", "KICKS", "Sokos Emotion",
+    "Fredrik & Louisa", "Parfymeriet", "The Perfume Shop",
+]
+# Below this many perfumeries, one shop missing from OSM moves top3_share by several points:
+# the row gets small_sample = True and its shares should not be compared with other countries.
+FRAGRANCE_MIN_SHOPS = 100
 
 # ---------------------------------------------------------------------------
 # Scoring weights (must sum to 1). Defended in the README, section "KPI choice".
@@ -74,6 +85,16 @@ KPI_WEIGHTS = {
     "catalogue_eligible_pct": 0.08,
     "personal_care_share_pct": 0.07,
 }
+# Sensitivity scenario "Fragrance focus" (issue #5). ASSUMPTION: the 30 % Market & potential axis keeps its
+# three weights (12 / 10 / 8) but is measured on the fragrance market (customs data, HS 3303) instead of
+# total personal-care spending. Every other weight is unchanged. It is a test, not the base score.
+FRAGRANCE_KPI_DIRECTION = {"fragrance_cagr": 1, "fragrance_per_capita_eur": 1, "fragrance_market_meur": 1}
+FRAGRANCE_FOCUS_WEIGHTS = {
+    **KPI_WEIGHTS,
+    "market_cagr": 0.0, "spend_per_capita_eur": 0.0, "market_size_meur": 0.0,
+    "fragrance_cagr": 0.12, "fragrance_per_capita_eur": 0.10, "fragrance_market_meur": 0.08,
+}
+
 # +1 = higher is better, -1 = lower is better
 KPI_DIRECTION = {
     "market_cagr": 1, "spend_per_capita_eur": 1, "market_size_meur": 1,
@@ -118,3 +139,37 @@ DECISION_MIN_NPV = 0                         # ...and positive 5-year NPV
 # AI summary
 # ---------------------------------------------------------------------------
 CLAUDE_MODEL = "claude-opus-5-5"
+# ---------------------------------------------------------------------------
+# Fragrance prices: LOOKFANTASTIC scraper (issue #3)
+# ---------------------------------------------------------------------------
+# One online retailer present in FR + 3 candidates, so prices are comparable like for like.
+# Finland and Norway have no LOOKFANTASTIC site: they are left out of this analysis.
+# Scraping rules: https://www.lookfantastic.fr/robots.txt (brand pages and ?pageNumber= allowed;
+# sort/filter/search URLs are disallowed and never used).
+LOOKFANTASTIC_SITES = {
+    "FR": "https://www.lookfantastic.fr",
+    "NL": "https://www.lookfantastic.nl",
+    "AT": "https://www.lookfantastic.at",
+    "IE": "https://www.lookfantastic.ie",
+}
+
+# Brand name -> (URL slug, extra listing suffixes to try first).
+# The "all products" page has a different name depending on the brand (view-all/, all/,
+# all-lancome/, view-all-jpg/...), checked by hand on 2026-11-12.
+FRAGRANCE_BRANDS = {
+    "Giorgio Armani": ("giorgio-armani", []),
+    "Carolina Herrera": ("carolina-herrera", []),
+    "Hugo Boss": ("hugo-boss", []),
+    "Jean Paul Gaultier": ("jean-paul-gaultier", ["view-all-jpg"]),
+    "Yves Saint Laurent": ("yves-saint-laurent", []),
+    "Lancôme": ("lancome", ["all-lancome"]),
+    "Paco Rabanne": ("paco-rabanne", []),
+    # Dior replacement (Dior is not sold on the NL and IE sites). Both exist in the 4 countries:
+    # keep ONE of the two lines below.
+    "Prada": ("prada", []),
+    "Valentino": ("valentino", []),
+}
+
+SCRAPER_USER_AGENT = "beauty-expansion-analytics student project (Eugenia School)"
+SCRAPER_DELAY_S = 2.0      # pause between two requests, to stay polite with the site
+SCRAPER_MAX_PAGES = 10     # safety stop per brand listing

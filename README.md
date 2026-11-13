@@ -35,6 +35,7 @@ Sephora is in Belfast (UK, February 2026). See `data/manual/sephora_presence.csv
 | Term | Definition |
 |---|---|
 | **Personal-care market** | Household final consumption on COICOP 2018 *CP131 Personal care* (Eurostat `nama_10_cp18`): cosmetics, toiletries and personal-care services. It's the widest official proxy for the beauty market. |
+| **Fragrance market (apparent consumption)** | Perfumes and toilet waters (HS 3303) that stay in the country: imports − exports, at customs value. Measured for the candidates only, see "Fragrance market from customs data" in §3. |
 | **Selective beauty store** | Specialist beauty / perfumery chain (Douglas, ICI Paris XL, Marionnaud, KICKS, Rituals, Kiko…), which competes directly with Sephora. Drugstores (dm, Kruidvat, Boots, Normal…) are indirect competitors. |
 | **Catchment area (zone d'achalandage)** | 10 km radius around the centre of each of the 5 largest cities of a country |
 | **Effective price index** | Price Sephora can charge for the same products, France = 100 (see business rules) |
@@ -61,6 +62,12 @@ Sephora is in Belfast (UK, February 2026). See `data/manual/sephora_presence.csv
 | `catalogue_eligible_pct` | see definition | % | country | simulated catalogue |
 | `personal_care_share_pct` | personal care / total household consumption | % | country | Eurostat |
 | `labour_cost_retail_eur_h` *(business case)* | hourly labour cost, retail trade (NACE G) | €/h | country | Eurostat lc_lci_lev |
+| `apparent_consumption_eur` *(fragrance, not scored yet)* | HS 3303 imports − exports, missing when ≤ 0 (net exporter) | € | country × year | Eurostat Comext DS-045409, Statistics Norway 08801 |
+| `per_capita_eur` *(fragrance, not scored yet)* | apparent consumption / population | €/inhabitant | country × year | Comext / SSB + Eurostat demo_pjan |
+| `perfumeries_per_100k` *(fragrance, not scored yet)* | (OSM `shop=perfumery` + stores of `config.PERFUMERY_CHAINS`, deduplicated) / population × 100k | shops | country | OpenStreetMap + Eurostat demo_pjan |
+| `top3_share` *(fragrance, not scored yet)* | shops of the 3 biggest perfumery chains / all perfumeries (independents included); a share of **shop count**, not of sales | share 0–1 (like `leader_store_share`) | country | OpenStreetMap |
+| `small_sample` *(fragrance)* | True when a country has fewer than `config.FRAGRANCE_MIN_SHOPS` (100) perfumeries in OSM: its `top3_share` and `leader` are fragile (IE, FI, NO on the 2026-11-13 extract) | flag | country | OpenStreetMap |
+| `fragrance_skus_eligible_pct` *(fragrance, not scored yet)* | eligible fragrance SKUs / all fragrance SKUs, **unweighted** (unlike `catalogue_eligible_pct`, which is revenue-weighted and covers all categories) | % (0–100) | country | simulated catalogue |
 
 **Dimensions:** `dim_country`, `dim_date` (actual / plan 2027–2029 / projection), `dim_indicator`, `dim_brand`, `dim_category`, `dim_store`.
 
@@ -72,6 +79,7 @@ Sephora is in Belfast (UK, February 2026). See `data/manual/sephora_presence.csv
 5. **Selective Retailing ≠ Sephora:** LVMH only publishes the business group (Sephora + DFS + Le Bon Marché), so we use it as a proxy and say so.
 6. **Source anomaly kept, not fixed:** LVMH's ESG Data Book 2025 business-group headcounts sum to 211,551 vs a published total of 211,552. We use the detailed figures.
 7. **Decision rule** (written before the results, `analysis/decision.py`): shortlist by score. If the top two are within 2 points, the higher base-case NPV wins. Then: **GO** = NPV > 0, payback ≤ 4 years, pessimistic NPV > 0. **CONDITIONAL GO** = NPV > 0 but a condition fails. **NO-GO** = NPV ≤ 0.
+8. **Net exporters aren't measured with trade data:** when fragrance imports − exports ≤ 0 (France), the fragrance market is left missing, not shown as negative.
 
 ## 3. Architecture & data sources
 
@@ -79,6 +87,7 @@ Sephora is in Belfast (UK, February 2026). See `data/manual/sephora_presence.csv
 flowchart LR
   subgraph Sources
     E[Eurostat API<br/>8 series]
+    C[Customs data<br/>Comext + Statistics Norway]
     O[OpenStreetMap<br/>Overpass API]
     S[LOOKFANTASTIC<br/>scraper]
     L[LVMH Excel +<br/>press releases]
@@ -106,6 +115,8 @@ erDiagram
   dim_store ||--o{ fact_store_pnl : ""
   dim_date ||--o{ fact_store_pnl : ""
   dim_date ||--o{ fact_group_financials : ""
+  dim_country ||--o{ fact_trade : ""
+  dim_date ||--o{ fact_trade : ""
   dim_country ||--o{ fact_country_kpi : ""
   dim_country ||--o{ fact_business_case : ""
   dim_date ||--o{ fact_business_case : ""
@@ -116,11 +127,45 @@ Each fact has a single, documented grain (see the comments in `schema.sql`). KPI
 | Source | Type | Data | Why it's relevant | Limits |
 |---|---|---|---|---|
 | **Eurostat API** | Open data API | population, GDP/capita, personal-care spending & share, HICP, price levels, retail labour cost | official, harmonised across all candidates, yearly refresh | CP131 includes personal-care *services* (hairdressers) |
+| **Eurostat Comext + Statistics Norway** | Open data APIs | imports and exports of perfumes & toilet waters (HS 3303), 2019–2025, 6 countries | the only free, harmonised measure of the fragrance market by country | customs values, not retail prices; France (net exporter) can't be measured; Dutch figures still include some transit |
 | **OpenStreetMap (Overpass)** | Open data API | 6,420 beauty stores geolocated in continental Europe (18 chains), city populations | only free geolocated source of competitor stores | crowd-sourced: coverage uneven. Nordic chains often lack `brand` tags, so we added an exact-name lookup. Drugstores in Ireland (Boots) are under-mapped. |
 | **LOOKFANTASTIC scraper** | Web scraping | 17 identical products × 4 countries | real shelf prices, same SKU across countries | online channel only; Sephora, Notino and Douglas block scripts (403), and we respected that |
 | **LVMH ESG Data Book + results** | Public Excel / press releases | Selective Retailing revenue, margin, headcount 2021–2025 | real economics of the business group | not Sephora-only |
 | **Cushman & Wakefield, EC, OECD, national customs** | Manual, cited | prime rents, VAT, corporate tax, duties | authoritative references | prime-street rents; applied with a 45 % factor for normal locations |
 | **Simulated internal databases** | Seeded generator calibrated on public totals | 330 French store P&Ls, 2,000-SKU catalogue with eligibility flags | the brief allows simulated internal data; totals match Sephora France revenue and LVMH margins | individual rows are synthetic |
+
+### Fragrance market from customs data (`extract/comext.py`)
+No public source gives fragrance sales by country: Eurostat's personal-care spending mixes fragrance with make-up,
+skincare and hairdressers. Customs data does isolate it. What enters a country minus what leaves it is roughly what
+is consumed there (**apparent consumption**).
+
+- **Formula.** The full formula is production + imports − exports. We tested Eurostat PRODCOM (DS-059367, codes
+  20421150 + 20421170): the candidates produce almost no fragrance (Finland 0, Austria 0 for toilet waters,
+  Netherlands and Ireland confidential), so imports − exports is a fair proxy for them.
+- **France can't be measured this way.** It exports ten times what it imports (2025: €8.1 bn vs €0.8 bn). Even with
+  its production (€4.3 bn, PRODCOM) the balance is −€2.9 bn, because production is valued at factory price and
+  exports at border price, brand value included. France is left missing. The score only compares candidates, so
+  this doesn't block the ranking.
+- **Netherlands: the Rotterdam effect.** Raw imports (€1.9 bn in 2025) overstate the Dutch market, because €1.5 bn
+  leaves again through Rotterdam and European distribution centres. Imports − exports (€457 M) removes most of this,
+  but the series jumps from year to year (€157 M in 2021, €342 M in 2022), so some transit is probably left. Read the
+  Dutch level and growth as an upper bound.
+- **Customs values, not retail prices.** Imports are valued CIF and exports FOB: the figures compare countries with
+  each other, they aren't the size of the retail market.
+- **Norway** isn't in Comext. We use Statistics Norway table 08801 (sum of the national codes under HS 3303),
+  converted from NOK at the Eurostat annual average rate.
+
+| 2025 (M€) | Imports | Exports | Apparent consumption | Per inhabitant | Growth 2019–2025 |
+|---|---|---|---|---|---|
+| Ireland | 170 | 14 | 157 | €28.8 | +12.9 %/yr |
+| Netherlands | 1,914 | 1,457 | 457 | €25.3 | +16.3 %/yr (upper bound) |
+| Austria | 347 | 126 | 220 | €24.0 | +7.4 %/yr |
+| Norway | 105 | 4 | 101 | €18.0 | +21.3 %/yr |
+| Finland | 47 | 4 | 43 | €7.6 | +16.4 %/yr |
+| France | 821 | 8,088 | not measurable (net exporter) | – | – |
+
+Output: `data/processed/fragrance_market.csv` and the `fact_trade` table, one row per country and year (2019–2025).
+How this changes the ranking is covered by the fragrance deep-dive (issue #5).
 
 ## 4. Results
 
@@ -172,6 +217,27 @@ P.C. Hooftstraat prime (≈ €1,260/m²), (b) a 3-store pilot in 2027 (Amsterda
 of the mature sales target in year 1, and (c) exclusive brands and a strong loyalty offer to take share from
 ICI Paris XL and Douglas, plus securing the ~9 % of sales currently held by exclusive local distributors.
 
+### Fragrance deep-dive
+Fragrance is Sephora's core category. This section looks at it on its own (dashboard tab "🌸 Fragrance", slide in
+`docs/slides/fragrance.md`).
+
+**Does the Netherlands stay first when fragrance is scored?** _To be completed once the scenario "Fragrance focus" has run._
+
+**Insights**
+1. _To be completed (market per capita and growth)._
+2. _To be completed (Rotterdam re-export effect)._
+3. _To be completed (prices and competition)._
+
+**Sources of the fragrance figures**
+| Figure | Source | Produced by | Status |
+|---|---|---|---|
+| Apparent consumption, imports, per capita, growth (HS 3303) | Eurostat Comext DS-045409, Statistics Norway 08801, Eurostat demo_pjan | issue #2 (`fragrance_market.csv`) | in `main` |
+| Price per ml, like-for-like price index | LOOKFANTASTIC scraper (FR, NL, AT, IE) | issue #3 (`fragrance_price_summary.csv`) | open PR |
+| Perfumeries per 100k, leader, top-3 share | OpenStreetMap (`shop=perfumery` + chains) | issue #4 (`fragrance_competition.csv`) | open PR |
+
+Limits: customs values are not retail prices; France cannot be measured with trade data (net exporter); Finland and
+Norway have no LOOKFANTASTIC site.
+
 ### Correction log
 A first run sent Ireland's supply through Sephora UK's Coventry hub, which made Ireland look closer (495 km) and
 ranked it joint first. Since Brexit, UK → Ireland shipments go through customs, so hubs are now restricted to the EU
@@ -214,7 +280,7 @@ years; the ranking and the decision didn't change. The same check fixed a text-e
 | Layer | Tools |
 |---|---|
 | Language | Python 3.12 |
-| Collection | `requests` (Eurostat & Overpass APIs), `BeautifulSoup` (scraper), `openpyxl`/`pandas` (Excel) |
+| Collection | `requests` (Eurostat, Comext, Statistics Norway & Overpass APIs), `BeautifulSoup` (scraper), `openpyxl`/`pandas` (Excel) |
 | Wrangling | `pandas`, `numpy` |
 | Storage / modelling | **DuckDB** star schema (`sql/schema.sql`), file `data/processed/warehouse.duckdb` |
 | Analysis | Python modules in `src/beauty_expansion/analysis/` |
@@ -238,7 +304,7 @@ Change an assumption in `src/beauty_expansion/config.py` (weights, rents, ramp-u
 ```
 src/beauty_expansion/
   config.py             every assumption, with its source or "ASSUMPTION"
-  extract/              eurostat.py · osm.py · prices.py (scraper) · lvmh.py · internal.py (simulated)
+  extract/              eurostat.py · osm.py · prices.py (scraper) · comext.py (customs) · lvmh.py · internal.py (simulated)
   transform/geo.py      distances, catchment areas
   load/warehouse.py     DuckDB star schema loader
   analysis/             kpis.py · scoring.py · business_case.py · decision.py · ai_summary.py

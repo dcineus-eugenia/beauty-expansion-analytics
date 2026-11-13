@@ -24,12 +24,16 @@ def add_nearest_hub(stores: pd.DataFrame, hubs: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def catchment_density(stores: pd.DataFrame, cities: pd.DataFrame, radius_km: float = 10.0) -> pd.DataFrame:
-    """For each main city: selective beauty stores within `radius_km` of the centre, per 100k inhabitants."""
+def catchment_density(stores: pd.DataFrame, cities: pd.DataFrame, radius_km: float = 10.0,
+                      segment: str = "selective") -> pd.DataFrame:
+    """For each main city: stores of one `segment` within `radius_km` of the centre, per 100k inhabitants.
+
+    The output column keeps its historical name `selective_stores_10km` whatever the segment.
+    """
     rows = []
-    selective = stores[stores["segment"] == "selective"]
+    in_segment = stores[stores["segment"] == segment]
     for city in cities.itertuples():
-        s = selective[selective["country_code"] == city.country_code]
+        s = in_segment[in_segment["country_code"] == city.country_code]
         d = haversine_km(s["lat"].values, s["lon"].values, city.lat, city.lon)
         n = int((d <= radius_km).sum())
         rows.append({
