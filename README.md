@@ -228,8 +228,11 @@ data instead of total personal-care spending. The Netherlands scores **78.1**, I
 ahead**, and first in all 6 scenarios. But the Dutch fragrance market is an **upper bound** (Rotterdam transit, see
 below). **Rough estimate:** if the true Dutch level were about 40 % below the customs estimate (≈ €270 M instead of
 €457 M), Ireland would overtake. Method: lower the Dutch market size and per-head figures by the same percentage, keep
-its growth, re-run the scoring with the "Fragrance focus" weights and find the point where both scores are equal. The
-Dutch series itself moved between €157 M (2021) and €342 M (2022). The base score (79.7) doesn't use these figures.
+its growth, re-run the scoring with the "Fragrance focus" weights and find the point where both scores are equal
+(NL 78.1 → 73.2, IE 71.4 → 73.2). Reproduce it with `python -m beauty_expansion.analysis.fragrance_breakeven` (after the
+pipeline). Limits of this estimate: it assumes the same percentage error on size and per-head figures, and keeps the
+Dutch growth, which is probably an upper bound too. The Dutch series itself moved between €157 M (2021) and €342 M
+(2022). The base score (79.7) doesn't use these figures.
 
 **Insights**
 1. **Ireland and the Netherlands lead per head, the Nordics grow fastest, and only the Netherlands is big.** Fragrance
@@ -316,7 +319,7 @@ src/beauty_expansion/
   extract/              eurostat.py · osm.py · prices.py (scraper) · comext.py (customs) · lvmh.py · internal.py (simulated)
   transform/geo.py      distances, catchment areas
   load/warehouse.py     DuckDB star schema loader
-  analysis/             kpis.py · scoring.py · business_case.py · decision.py · ai_summary.py
+  analysis/             kpis.py · scoring.py · business_case.py · decision.py · ai_summary.py · fragrance_breakeven.py
   pipeline.py           one command, end to end
 sql/schema.sql          star schema
 app/streamlit_app.py    dashboard
