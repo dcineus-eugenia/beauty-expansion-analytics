@@ -14,7 +14,7 @@ from datetime import date
 import pandas as pd
 import requests
 
-from beauty_expansion import config
+from beauty_expansion import config, contracts
 from beauty_expansion.analysis import ai_summary, business_case, decision, kpis, scoring
 from beauty_expansion.extract import comext, eurostat, internal, lvmh, osm, prices
 from beauty_expansion.transform import fragrance_competition
@@ -88,18 +88,27 @@ def run(refresh: bool = False) -> None:
     verdict = decision.decide(ranking, case)
     ai_summary.generate(k, ranking, sens, case, verdict, fragrance)
 
-    # Flat exports for the dashboard / Power BI users
-    k.to_csv(config.PROCESSED / "kpis_by_country.csv")
-    ranking.to_csv(config.PROCESSED / "country_ranking.csv")
-    sens.to_csv(config.PROCESSED / "sensitivity.csv", index=False)
-    case.to_csv(config.PROCESSED / "business_case_summary.csv", index=False)
-    plans.to_csv(config.PROCESSED / "business_case_plan.csv", index=False)
-    catchment.to_csv(config.PROCESSED / "catchment_density.csv", index=False)
-    stores.to_csv(config.PROCESSED / "stores.csv", index=False)
-    price_table.to_csv(config.PROCESSED / "prices.csv", index=False)
-    group_fin.to_csv(config.PROCESSED / "lvmh_selective_retailing.csv", index=False)
-    stores_fr.to_csv(config.PROCESSED / "internal_stores_fr.csv", index=False)
-    fragrance.to_csv(config.PROCESSED / "fragrance_market.csv", index=False)
+    # Flat exports for the dashboard / Power BI users. Each file is checked against its data contract
+    # (contracts.py) before it is written, so a broken file never reaches the dashboard.
+    exports = {
+        "kpis_by_country.csv": k.rename_axis("country_code").reset_index(),
+        "country_ranking.csv": ranking.rename_axis("country_code").reset_index(),
+        "sensitivity.csv": sens,
+        "business_case_summary.csv": case,
+        "business_case_plan.csv": plans,
+        "catchment_density.csv": catchment,
+        "stores.csv": stores,
+        "prices.csv": price_table,
+        "lvmh_selective_retailing.csv": group_fin,
+        "internal_stores_fr.csv": stores_fr,
+        "fragrance_market.csv": fragrance,
+    }
+    for file, df in exports.items():
+        contracts.validate(file, df).to_csv(config.PROCESSED / file, index=False)
+    errors = contracts.validate_outputs()
+    if errors:
+        raise contracts.ContractError("Data contract errors:\n  - " + "\n  - ".join(errors))
+    print(f"  data contracts: all {len(exports)} files pass")
     con.close()
     print("Done. Launch the dashboard with: streamlit run app/streamlit_app.py")
 

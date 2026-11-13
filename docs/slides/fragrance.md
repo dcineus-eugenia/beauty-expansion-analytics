@@ -1,6 +1,6 @@
 # Fragrance confirms the Netherlands, as long as its market is not overstated
 
-- **The Netherlands still ranks first when fragrance is scored** (78.1 vs Ireland 71.4, +6.7 points, first in all 6 scenarios). It is the biggest fragrance market of the candidates: €457 M in 2025, 2.9 times Ireland's.
+- **The Netherlands still ranks first when fragrance is scored** (78.1 vs Ireland 71.2, +6.8 points, first in all 6 scenarios). It is the biggest fragrance market of the candidates: €457 M in 2025, 2.9 times Ireland's.
 - **The Dutch figure is an upper bound.** Raw imports (€1.9 bn) mostly leave again through Rotterdam (76 % re-exported). Rough estimate: if the true level were about 40 % lower, Ireland would take first place (method: Dutch market and per-head figures lowered together, growth unchanged, scoring re-run).
 - **No price edge, less crowded than France.** The same perfume costs €1.38 per ml online in every country, so the margin comes from VAT and mix, not shelf price. Around its 5 largest cities the Netherlands has 4.4 perfumeries per 100k (France 9.4), led by ICI PARIS XL.
 

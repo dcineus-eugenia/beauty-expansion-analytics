@@ -33,6 +33,11 @@ CANDIDATES = {
 }
 COUNTRIES = {BASELINE: "France", **CANDIDATES}
 
+# Study area = continental Europe. OpenStreetMap's country areas include overseas territories
+# (French Guiana, Réunion, Caribbean Netherlands...), whose stores would distort densities and
+# hub distances. (lat_min, lat_max, lon_min, lon_max)
+EUROPE_BBOX = (34.0, 72.0, -25.0, 45.0)
+
 # ---------------------------------------------------------------------------
 # Competitor brands (OpenStreetMap "brand" tag)
 # ---------------------------------------------------------------------------
@@ -159,8 +164,8 @@ FRAGRANCE_BRANDS = {
     "Yves Saint Laurent": ("yves-saint-laurent", []),
     "Lancôme": ("lancome", ["all-lancome"]),
     "Paco Rabanne": ("paco-rabanne", []),
-    # Dior replacement (Dior is not sold on the NL and IE sites). Both exist in the 4 countries:
-    # keep ONE of the two lines below.
+    # Dior replacements (Dior is not sold on the NL and IE sites). Both are kept: they exist in the 4 countries.
+    # Carolina Herrera and Jean Paul Gaultier are missing on the Austrian site (checked by the 2026-11-13 run).
     "Prada": ("prada", []),
     "Valentino": ("valentino", []),
 }

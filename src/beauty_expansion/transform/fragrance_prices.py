@@ -37,7 +37,7 @@ def add_prices(df: pd.DataFrame) -> pd.DataFrame:
     df["price_ex_vat_eur"] = df["price_eur"] / (1 + df["vat_standard_rate"])
     df["price_per_ml"] = df["price_eur"] / df["volume_ml"]
     df["price_ex_vat_per_ml"] = df["price_ex_vat_eur"] / df["volume_ml"]
-    df["discount_pct"] = 1 - df["price_eur"] / df["rrp_eur"]
+    df["discount_pct"] = (1 - df["price_eur"] / df["rrp_eur"]) * 100   # percent, 0-100 (naming rule)
     return df
 
 

@@ -91,7 +91,9 @@ def stores(country_code: str, refresh: bool = False) -> pd.DataFrame:
             "lat": point["lat"],
             "lon": point["lon"],
         })
-    return pd.DataFrame(rows).drop_duplicates("osm_id")
+    df = pd.DataFrame(rows).drop_duplicates("osm_id")
+    lat_min, lat_max, lon_min, lon_max = config.EUROPE_BBOX
+    return df[df["lat"].between(lat_min, lat_max) & df["lon"].between(lon_min, lon_max)]
 
 
 def cities(country_code: str, top: int = 5, refresh: bool = False) -> pd.DataFrame:

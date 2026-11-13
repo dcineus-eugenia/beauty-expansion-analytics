@@ -1,0 +1,5 @@
+# Changes to shared definitions automatically request a review from the data owner.
+/src/beauty_expansion/config.py     @dcineus-eugenia
+/src/beauty_expansion/contracts.py  @dcineus-eugenia
+/sql/schema.sql                     @dcineus-eugenia
+/data/manual/                       @dcineus-eugenia
