@@ -71,6 +71,7 @@ def competition(perfumeries: pd.DataFrame, cities: pd.DataFrame, population: pd.
             "top3_share": chains.head(3).sum() / len(p) if len(p) else None,
             "leader": chains.index[0] if len(chains) else None,
             "independent_share": (p["chain"] == "independent").mean() if len(p) else None,
+            "small_sample": len(p) < config.FRAGRANCE_MIN_SHOPS,
         })
     out = pd.DataFrame(rows)
 
@@ -109,7 +110,7 @@ def run(perfumeries: pd.DataFrame, stores: pd.DataFrame, cities: pd.DataFrame, m
 
     columns = ["country_code", "perfumeries", "perfumeries_per_100k", "top3_share", "leader",
                "fragrance_skus_eligible_pct", "perfumeries_per_100k_top5_cities", "independent_share",
-               "fragrance_skus_source"]
+               "small_sample", "fragrance_skus_source"]
     table = table[columns].round(3)
     reasons = reasons.round(2)
 

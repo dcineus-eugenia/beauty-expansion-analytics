@@ -167,7 +167,7 @@ def extract_perfumeries(countries: list[str], refresh: bool = False) -> pd.DataF
     frames = []
     for cc in countries:
         p = perfumeries(cc, refresh)
-        print(f"  osm {cc}: {len(p):>5} perfumeries (shop=perfumery)")
+        print(f"  osm {cc}: {len(p):>5} perfumeries (shop=perfumery only, before adding chain stores)")
         frames.append(p)
     return pd.concat(frames, ignore_index=True)
 

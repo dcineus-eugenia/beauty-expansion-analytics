@@ -55,6 +55,9 @@ PERFUMERY_CHAINS = [
     "Sephora", "Douglas", "ICI PARIS XL", "Marionnaud", "Nocibé", "KICKS", "Sokos Emotion",
     "Fredrik & Louisa", "Parfymeriet", "The Perfume Shop",
 ]
+# Below this many perfumeries, one shop missing from OSM moves top3_share by several points:
+# the row gets small_sample = True and its shares should not be compared with other countries.
+FRAGRANCE_MIN_SHOPS = 100
 
 # ---------------------------------------------------------------------------
 # Scoring weights (must sum to 1). Defended in the README, section "KPI choice".

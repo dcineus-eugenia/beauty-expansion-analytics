@@ -78,6 +78,7 @@ def test_competition_counts_density_top3_and_leader():
     assert (out["top3_share"] == 0.8).all()                      # (4 + 3 + 1) / 10, independents in the base
     assert (out["leader"] == "Douglas").all()
     assert (out["perfumeries_per_100k_top5_cities"] == 10.0).all()
+    assert out["small_sample"].all()                            # 10 shops < FRAGRANCE_MIN_SHOPS
 
 
 def test_competition_country_without_shops():
@@ -111,3 +112,13 @@ def test_clear_outputs_removes_stale_files(tmp_path, monkeypatch):
     fc.clear_outputs()
     fc.clear_outputs()     # nothing left to remove: must not fail
     assert not any((tmp_path / name).exists() for name in fc.OUTPUTS)
+
+
+def test_small_sample_flag_threshold(monkeypatch):
+    monkeypatch.setattr(config, "FRAGRANCE_MIN_SHOPS", 10)
+    perf = pd.DataFrame([shop(f"n/NL{i}", "NL", "Douglas") for i in range(10)]
+                        + [shop(f"n/IE{i}", "IE", "independent") for i in range(9)], columns=PERF_COLS)
+    cities = pd.DataFrame([{"country_code": cc, "city": "C", "population": 100_000, "lat": 52.0, "lon": 5.0}
+                           for cc in config.COUNTRIES])
+    flags = fc.competition(perf, cities, pd.Series({cc: 1e6 for cc in config.COUNTRIES})).set_index("country_code")["small_sample"]
+    assert not flags["NL"] and flags["IE"]                       # 10 shops: enough; 9: small sample
