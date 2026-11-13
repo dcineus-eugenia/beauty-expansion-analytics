@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from beauty_expansion import config
+from beauty_expansion.extract import comext
 
 P = config.PROCESSED
 FOCUS = "#2a78d6"       # the recommended country
@@ -39,6 +40,11 @@ def load():
         "ai": json.loads((P / "ai_summary.json").read_text()),
         "decision": json.loads((P / "decision.json").read_text()),
     }
+    # Fragrance files: produced by issues #2 (market), #3 (prices) and #4 (competition). Each one is optional,
+    # the Fragrance tab says what is missing instead of failing.
+    for key, name in [("frag_market", "fragrance_market.csv"), ("frag_prices", "fragrance_price_summary.csv"),
+                      ("frag_comp", "fragrance_competition.csv")]:
+        d[key] = pd.read_csv(P / name) if (P / name).exists() else None
     return d
 
 
@@ -96,7 +102,7 @@ c4.metric("Store payback", f"{base_case['payback_years']:.1f} yrs" if pd.notna(b
 c5.metric("Revenue 2029", f"{base_case['plan_revenue_2029_meur']:.0f} M€", delta_color="off")
 
 tabs = st.tabs(["🧭 Summary", "📈 Market", "💶 Price & margin", "🗺️ Network", "🚚 Operations & assortment",
-                "🧮 Business case", "⚖️ Robustness", "📚 Data & sources"])
+                "🧮 Business case", "⚖️ Robustness", "📚 Data & sources", "🌸 Fragrance"])
 
 # ---------------------------------------------------------------- summary
 with tabs[0]:
@@ -282,3 +288,75 @@ with tabs[7]:
 """)
     st.markdown("**Full KPI table**")
     st.dataframe(kpis.round(3), width="stretch")
+
+# ---------------------------------------------------------------- fragrance
+with tabs[8]:
+    st.caption("Fragrance (perfumes and toilet waters, HS 3303) is measured on its own: customs data for the market, "
+               "LOOKFANTASTIC for prices, OpenStreetMap for perfumeries.")
+    fm, fp, fc = d["frag_market"], d["frag_prices"], d["frag_comp"]
+
+    # --- market (issue #2)
+    if fm is None:
+        st.info("Market data missing: run `python -m beauty_expansion.pipeline` (issue #2, fragrance_market.csv).")
+    else:
+        latest = fm.sort_values("year").groupby("country_code").tail(1).set_index("country_code")
+        year = int(latest["year"].max())
+        a, b = st.columns(2)
+        pc = latest[["per_capita_eur"]].dropna()
+        a.plotly_chart(bar(pc, "per_capita_eur", None, f"Fragrance market per inhabitant, {year} (€)", ".1f", "€ per inhabitant"),
+                       width="stretch")
+        a.caption("Apparent consumption = imports − exports of HS 3303 (customs values, not retail prices). "
+                  "France is a net exporter (exports 10x imports), so its market can't be measured this way: "
+                  "no reference line here. Source: Eurostat Comext DS-045409, Statistics Norway 08801.")
+        growth = (comext.cagr(fm).dropna() * 100).to_frame("cagr")
+        b.plotly_chart(bar(growth, "cagr", None, "Fragrance market growth, CAGR 2019 → 2025 (%)", ".1f", "% per year"),
+                       width="stretch")
+        b.caption("The Dutch growth is an upper bound: some Rotterdam transit remains in imports − exports.")
+
+        nl = fm[fm["country_code"] == "NL"].sort_values("year")
+        fig = go.Figure()
+        fig.add_bar(x=nl["year"], y=nl["imports_eur"] / 1e6, name="Raw imports", marker=dict(color=OTHER, cornerradius=4),
+                    hovertemplate="%{x}: %{y:,.0f} M€<extra>Raw imports</extra>")
+        fig.add_bar(x=nl["year"], y=nl["apparent_consumption_eur"] / 1e6, name="Apparent consumption (imports − exports)",
+                    marker=dict(color=FOCUS, cornerradius=4),
+                    hovertemplate="%{x}: %{y:,.0f} M€<extra>Apparent consumption</extra>")
+        fig.update_layout(title="Netherlands: raw imports vs apparent consumption (M€), the Rotterdam re-export effect",
+                          barmode="group", height=360, margin=dict(l=10, r=10, t=50, b=10),
+                          legend=dict(orientation="h", y=-0.15))
+        st.plotly_chart(fig, width="stretch")
+        st.caption("Most Dutch imports leave again (exports), so raw imports overstate the local market.")
+
+    # --- prices (issue #3)
+    st.markdown("#### Prices")
+    if fp is None:
+        st.info("Waiting for issue #3 (perfume prices, `fragrance_price_summary.csv`): chart appears once its pull request is merged.")
+    else:
+        fp = fp.set_index("country_code")
+        a, b = st.columns(2)
+        a.plotly_chart(bar(fp[["price_ex_vat_index_vs_fr"]].dropna(), "price_ex_vat_index_vs_fr", None,
+                           "Perfume price index ex-VAT, same products (France = 100)", ".1f", "index", 100), width="stretch")
+        b.plotly_chart(bar(fp[["median_price_per_ml"]].dropna(), "median_price_per_ml", None,
+                           "Median perfume price per ml, incl. VAT (€/ml)", ".2f", "€ per ml",
+                           fp["median_price_per_ml"].get("FR")), width="stretch")
+        st.caption("Online prices on LOOKFANTASTIC only (FR, NL, AT, IE); Finland and Norway have no site. "
+                   "Source: issue #3 scraper.")
+
+    # --- competition (issue #4)
+    st.markdown("#### Competition")
+    if fc is None:
+        st.info("Waiting for issue #4 (perfumery competition, `fragrance_competition.csv`): charts appear once its pull request is merged.")
+    else:
+        fc = fc.set_index("country_code")
+        a, b = st.columns(2)
+        a.plotly_chart(bar(fc[["perfumeries_per_100k"]], "perfumeries_per_100k", None,
+                           "Perfumeries per 100k inhabitants", ".1f", "shops / 100k",
+                           fc["perfumeries_per_100k"].get("FR")), width="stretch")
+        share = fc[["top3_share"]].dropna() * 100
+        b.plotly_chart(bar(share, "top3_share", None, "Share of perfumeries held by the 3 biggest chains (%)", ".0f", "% of shops"),
+                       width="stretch")
+        if "small_sample" in fc:
+            fragile = [names[c] for c in fc.index[fc["small_sample"].fillna(False).astype(bool)]]
+            if fragile:
+                st.caption("Few perfumeries in OpenStreetMap for " + ", ".join(fragile) + ": their shares are fragile.")
+        st.caption("Shares are of shop count, not of sales. Source: OpenStreetMap (issue #4).")
+    comment("fragrance")
