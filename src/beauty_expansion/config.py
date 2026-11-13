@@ -49,9 +49,11 @@ DRUGSTORE_BRANDS = [
 ]
 # Selective chains that sell fragrance as a core category (issue #4). OSM often tags them shop=cosmetics,
 # not shop=perfumery, so the fragrance competition counts them from the brand query as well.
+# The Perfume Shop (UK chain, also in Ireland) has no OSM brand tag in Ireland: it's only matched by name
+# among shop=perfumery results, since it isn't in the brand query.
 PERFUMERY_CHAINS = [
     "Sephora", "Douglas", "ICI PARIS XL", "Marionnaud", "Nocibé", "KICKS", "Sokos Emotion",
-    "Fredrik & Louisa", "Parfymeriet",
+    "Fredrik & Louisa", "Parfymeriet", "The Perfume Shop",
 ]
 
 # ---------------------------------------------------------------------------

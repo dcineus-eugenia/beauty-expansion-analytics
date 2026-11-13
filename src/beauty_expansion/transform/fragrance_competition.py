@@ -37,12 +37,14 @@ def combine(perfumeries: pd.DataFrame, stores: pd.DataFrame) -> pd.DataFrame:
       alone finds 2 perfumeries in Finland. We add the chain stores from the brand query.
     - Some independents list the brands they carry in their `brand` tag ("JANZEN;Il Bucato di Adele").
       An unknown brand seen only once in a country counts as independent.
+    - Ireland is under-mapped: The Perfume Shop has no brand tag (matched by name), and Boots or department
+      stores (Brown Thomas, Arnotts) that sell fragrance aren't tagged shop=perfumery. Read IE as a floor.
     """
     chain_stores = stores[stores["brand"].isin(config.PERFUMERY_CHAINS)]
     chain_stores = chain_stores.assign(name=chain_stores["brand"], chain=chain_stores["brand"], segment="perfumery")
     shops = pd.concat([perfumeries, chain_stores[perfumeries.columns]], ignore_index=True).drop_duplicates("osm_id")
 
-    known = set(config.SELECTIVE_BRANDS + config.DRUGSTORE_BRANDS)
+    known = set(config.SELECTIVE_BRANDS + config.DRUGSTORE_BRANDS + config.PERFUMERY_CHAINS)
     seen = shops.groupby(["country_code", "chain"])["osm_id"].transform("size")
     shops.loc[~shops["chain"].isin(known) & (seen < 2), "chain"] = "independent"
     return shops

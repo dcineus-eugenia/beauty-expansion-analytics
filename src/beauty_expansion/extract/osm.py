@@ -143,7 +143,7 @@ def perfumeries(country_code: str, refresh: bool = False) -> pd.DataFrame:
     out tags center;
     """
     data = _query(f"perfumeries_{country_code}", ql, refresh)
-    canonical = {b.lower(): b for b in config.SELECTIVE_BRANDS + config.DRUGSTORE_BRANDS}
+    canonical = {b.lower(): b for b in config.SELECTIVE_BRANDS + config.DRUGSTORE_BRANDS + config.PERFUMERY_CHAINS}
     rows = []
     for el in data["elements"]:
         tags = el.get("tags", {})
