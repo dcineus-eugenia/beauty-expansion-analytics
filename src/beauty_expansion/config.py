@@ -80,6 +80,16 @@ KPI_WEIGHTS = {
     "catalogue_eligible_pct": 0.08,
     "personal_care_share_pct": 0.07,
 }
+# Sensitivity scenario "Fragrance focus" (issue #5). ASSUMPTION: the 30 % Market & potential axis keeps its
+# three weights (12 / 10 / 8) but is measured on the fragrance market (customs data, HS 3303) instead of
+# total personal-care spending. Every other weight is unchanged. It is a test, not the base score.
+FRAGRANCE_KPI_DIRECTION = {"fragrance_cagr": 1, "fragrance_per_capita_eur": 1, "fragrance_market_meur": 1}
+FRAGRANCE_FOCUS_WEIGHTS = {
+    **KPI_WEIGHTS,
+    "market_cagr": 0.0, "spend_per_capita_eur": 0.0, "market_size_meur": 0.0,
+    "fragrance_cagr": 0.12, "fragrance_per_capita_eur": 0.10, "fragrance_market_meur": 0.08,
+}
+
 # +1 = higher is better, -1 = lower is better
 KPI_DIRECTION = {
     "market_cagr": 1, "spend_per_capita_eur": 1, "market_size_meur": 1,

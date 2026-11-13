@@ -217,6 +217,27 @@ P.C. Hooftstraat prime (≈ €1,260/m²), (b) a 3-store pilot in 2027 (Amsterda
 of the mature sales target in year 1, and (c) exclusive brands and a strong loyalty offer to take share from
 ICI Paris XL and Douglas, plus securing the ~9 % of sales currently held by exclusive local distributors.
 
+### Fragrance deep-dive
+Fragrance is Sephora's core category. This section looks at it on its own (dashboard tab "🌸 Fragrance", slide in
+`docs/slides/fragrance.md`).
+
+**Does the Netherlands stay first when fragrance is scored?** _To be completed once the scenario "Fragrance focus" has run._
+
+**Insights**
+1. _To be completed (market per capita and growth)._
+2. _To be completed (Rotterdam re-export effect)._
+3. _To be completed (prices and competition)._
+
+**Sources of the fragrance figures**
+| Figure | Source | Produced by | Status |
+|---|---|---|---|
+| Apparent consumption, imports, per capita, growth (HS 3303) | Eurostat Comext DS-045409, Statistics Norway 08801, Eurostat demo_pjan | issue #2 (`fragrance_market.csv`) | in `main` |
+| Price per ml, like-for-like price index | LOOKFANTASTIC scraper (FR, NL, AT, IE) | issue #3 (`fragrance_price_summary.csv`) | open PR |
+| Perfumeries per 100k, leader, top-3 share | OpenStreetMap (`shop=perfumery` + chains) | issue #4 (`fragrance_competition.csv`) | open PR |
+
+Limits: customs values are not retail prices; France cannot be measured with trade data (net exporter); Finland and
+Norway have no LOOKFANTASTIC site.
+
 ### Correction log
 A first run sent Ireland's supply through Sephora UK's Coventry hub, which made Ireland look closer (495 km) and
 ranked it joint first. Since Brexit, UK → Ireland shipments go through customs, so hubs are now restricted to the EU

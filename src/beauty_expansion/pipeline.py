@@ -68,6 +68,10 @@ def run(refresh: bool = False) -> None:
 
     print("4/6 KPIs and scoring")
     k = kpis.compute(con, catchment)
+    frag = comext.summary(fragrance)    # fragrance KPIs, used by the "Fragrance focus" scenario (NaN for France)
+    k["fragrance_cagr"] = frag["cagr_pct"] / 100
+    k["fragrance_per_capita_eur"] = frag["per_capita_eur"]
+    k["fragrance_market_meur"] = frag["market_meur"]
     ranking = scoring.rank(k)
     sens = scoring.sensitivity(k)
     long = kpis.to_long(k).merge(scoring.scores_long(k), on=["country_code", "kpi"], how="left")
