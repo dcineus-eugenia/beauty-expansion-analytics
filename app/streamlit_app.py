@@ -354,6 +354,10 @@ with tabs[8]:
         share = fc[["top3_share"]].dropna() * 100
         b.plotly_chart(bar(share, "top3_share", None, "Share of perfumeries held by the 3 biggest chains (%)", ".0f", "% of shops"),
                        width="stretch")
+        leaders = [f"{names[c]}: {fc.loc[c, 'leader']}" for c in fc.index if pd.notna(fc.loc[c, "leader"])]
+        if leaders:
+            st.caption("Leading chain by number of shops: " + "; ".join(leaders) + ". "
+                       "The chart shows the share of the top 3 chains; the leader's own share is not in the data.")
         if "small_sample" in fc:
             fragile = [names[c] for c in fc.index[fc["small_sample"].fillna(False).astype(bool)]]
             if fragile:
