@@ -226,9 +226,10 @@ Fragrance is Sephora's core category. This section looks at it on its own (dashb
 "Fragrance focus" the Market axis (30 %, same 12 / 10 / 8 weights) is measured on the fragrance market from customs
 data instead of total personal-care spending. The Netherlands scores **78.1**, Ireland 71.4, Austria 63.9: first, **6.7 points
 ahead**, and first in all 6 scenarios. But the Dutch fragrance market is an **upper bound** (Rotterdam transit, see
-below). A one-off check with the same weights: if the true Dutch level were about 40 % below the customs estimate
-(under ≈ €275 M instead of €457 M), Ireland would overtake. The Dutch series itself moved between €157 M (2021) and
-€342 M (2022). The base score (79.7) doesn't use these figures.
+below). **Rough estimate:** if the true Dutch level were about 40 % below the customs estimate (≈ €270 M instead of
+€457 M), Ireland would overtake. Method: lower the Dutch market size and per-head figures by the same percentage, keep
+its growth, re-run the scoring with the "Fragrance focus" weights and find the point where both scores are equal. The
+Dutch series itself moved between €157 M (2021) and €342 M (2022). The base score (79.7) doesn't use these figures.
 
 **Insights**
 1. **Ireland and the Netherlands lead per head, the Nordics grow fastest, and only the Netherlands is big.** Fragrance
