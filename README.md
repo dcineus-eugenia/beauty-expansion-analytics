@@ -212,9 +212,10 @@ value**: the network has to keep running beyond 2031 to create value.
 - **Trade-off for the Comex:** Ireland has better store economics (higher NPV, faster payback) but a smaller market
   that is harder to supply and to scale beyond 15 stores. **Plan B = Ireland.**
 
-**Conditions for a full GO:** bring payback under 4 years by (a) securing average rents at or below 45 % of
-P.C. Hooftstraat prime (≈ €1,260/m²), (b) a 3-store pilot in 2027 (Amsterdam, Rotterdam, Utrecht) that must reach 70 %
-of the mature sales target in year 1, and (c) exclusive brands and a strong loyalty offer to take share from
+**Conditions for a full GO:** bring payback under 4 years by (a) securing average rents at or below about 25 % of
+P.C. Hooftstraat prime (≈ €700/m²; the model already assumes 45 %, which gives the 4.9 years, and a 25 % rent brings
+it to 3.95 years, see `app/comex/build_dashboard.py`), (b) a 3-store pilot in 2027 (Amsterdam, Rotterdam,
+Utrecht) that must reach at least the 70 % of mature sales the model assumes in year 1, and (c) exclusive brands and a strong loyalty offer to take share from
 ICI Paris XL and Douglas, plus securing the ~9 % of sales currently held by exclusive local distributors.
 
 ### Fragrance deep-dive
