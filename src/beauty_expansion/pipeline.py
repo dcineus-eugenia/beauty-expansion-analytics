@@ -5,7 +5,7 @@
                                                    #   re-scrape LOOKFANTASTIC perfume prices (~5 min)
 
 Steps: extract -> transform -> load (DuckDB star schema) -> KPIs -> scoring -> business case -> decision -> AI summary.
-Outputs land in data/processed/ (CSV + warehouse.duckdb + ai_summary.json); the Streamlit app reads them.
+Outputs land in data/processed/ (CSV + warehouse.duckdb + ai_summary.json); app/comex/build_dashboard.py reads them.
 """
 
 import argparse
@@ -110,7 +110,7 @@ def run(refresh: bool = False) -> None:
         raise contracts.ContractError("Data contract errors:\n  - " + "\n  - ".join(errors))
     print(f"  data contracts: all {len(exports)} files pass")
     con.close()
-    print("Done. Launch the dashboard with: streamlit run app/streamlit_app.py")
+    print("Done. Build the dashboards with: python app/comex/build_dashboard.py")
 
 
 if __name__ == "__main__":

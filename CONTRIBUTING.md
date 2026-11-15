@@ -16,7 +16,7 @@ pip install -r requirements.txt
 pip install -e .
 python -m beauty_expansion.pipeline  # first run downloads data, ~5 min
 python -m pytest -q                  # all tests must pass
-streamlit run app/streamlit_app.py   # dashboard on http://localhost:8501
+python app/comex/build_dashboard.py  # rebuilds the Comex dashboards and deck
 ```
 
 Optional, for the real Claude summary: copy `.env.example` to `.env` and paste an Anthropic API key. **Never commit `.env`.**
@@ -86,7 +86,7 @@ Five people write to the same pipeline, so the data rules are enforced by code, 
 | `src/beauty_expansion/contracts.py` | data contracts of every output file |
 | `src/beauty_expansion/pipeline.py` | runs everything in order |
 | `tests/` | pytest suite, run on every pull request |
-| `app/streamlit_app.py` | dashboard |
+| `app/comex/` | Comex dashboards and slide deck |
 | `lessons/` + `LEARNING_PATH.md` | Python learning modules |
 
 Current team tasks are the GitHub issues: https://github.com/dcineus-eugenia/beauty-expansion-analytics/issues

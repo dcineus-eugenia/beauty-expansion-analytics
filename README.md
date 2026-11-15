@@ -7,7 +7,7 @@
 > plan (€20 M), but store payback is **4.9 years**, above the 4-year target. **Ireland is the Plan B**: better
 > store economics (NPV €90 M, payback 4.5 years) but a smaller, harder-to-supply market.
 
-_All figures are produced by the pipeline (`python -m beauty_expansion.pipeline`) and shown in the Streamlit dashboard.
+_All figures are produced by the pipeline (`python -m beauty_expansion.pipeline`) and shown in the Comex dashboards and slide deck (`app/comex/`).
 Data collected 2026-11-11/12._
 
 ---
@@ -97,7 +97,7 @@ flowchart LR
   Sources --> X[extract/] --> T[transform/geo] --> W[(DuckDB<br/>star schema)]
   W --> K[KPIs] --> SC[scoring + sensitivity] --> D[decision rule]
   K --> BC[business case] --> D
-  D --> AI[Claude summary] --> APP[Streamlit dashboard]
+  D --> AI[Claude summary] --> APP[Comex dashboards + deck]
 ```
 
 ### Star schema (`sql/schema.sql`)
@@ -302,7 +302,7 @@ years; the ranking and the decision didn't change. The same check fixed a text-e
 | Storage / modelling | **DuckDB** star schema (`sql/schema.sql`), file `data/processed/warehouse.duckdb` |
 | Analysis | Python modules in `src/beauty_expansion/analysis/` |
 | AI | Claude Opus 5.5 via the `anthropic` SDK, with structured JSON output and refusal fallback. A rule-based fallback runs without a key. |
-| DataViz | Plotly + **Streamlit** dashboard (`app/streamlit_app.py`). Offline HTML dashboards and slide deck for the Comex (`app/comex/`). CSV exports in `data/processed/` for Power BI/Tableau users. |
+| DataViz | Offline HTML dashboards and slide deck for the Comex (`app/comex/`), vanilla SVG charts, no library. CSV exports in `data/processed/` for Power BI/Tableau users. |
 | Versioning | Git |
 
 ## How to run
@@ -312,7 +312,6 @@ python3.12 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt && pip install -e .
 cp .env.example .env                       # optional: add ANTHROPIC_API_KEY for the AI summary
 python -m beauty_expansion.pipeline        # ~2 min with cache, ~15 min first run (--refresh to re-download)
-streamlit run app/streamlit_app.py         # opens the dashboard
 python app/comex/build_dashboard.py        # rebuilds the offline Comex dashboards and the slide deck
 ```
 
@@ -329,7 +328,6 @@ src/beauty_expansion/
   contracts.py          data contracts: grain, columns, units, ranges of every output file
   pipeline.py           one command, end to end
 sql/schema.sql          star schema
-app/streamlit_app.py    dashboard
 app/comex/              offline Comex dashboards (tabs, one page) + 12-slide deck (HTML and PPTX), see app/comex/README.md
 tests/                  pytest suite (run on every pull request)
 docs/DATA_CONTRACTS.md  generated data dictionary of the output files

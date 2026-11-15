@@ -9,10 +9,6 @@ beautifulsoup4>=4.12   # parse HTML when scraping
 # Database / modelling
 duckdb>=1.1            # SQL engine that runs inside Python, no server needed
 
-# Dataviz & dashboard
-plotly>=5.24
-streamlit>=1.40
-
 # AI summary
 anthropic>=0.40
 python-dotenv>=1.0     # load API keys from a .env file

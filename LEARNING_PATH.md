@@ -4,7 +4,7 @@
 > Modules 00–02 are written lessons. For modules 03–12, the finished code is your study material: each lesson maps
 > to a file in `src/beauty_expansion/` (03 → `extract/eurostat.py`, 04 → `extract/osm.py`, 05 → `extract/prices.py`,
 > 06 → `sql/schema.sql` + `load/warehouse.py`, 07 → `analysis/kpis.py` + `scoring.py`, 08 → `analysis/business_case.py`,
-> 09/11 → `app/streamlit_app.py`, 10 → `analysis/ai_summary.py`, 12 → `pipeline.py`).
+> 09/11 → `app/comex/build_dashboard.py`, 10 → `analysis/ai_summary.py`, 12 → `pipeline.py`).
 
 This project teaches Python by answering the Comex's question:
 
@@ -61,7 +61,7 @@ python lessons/00_python_refresher.py
 |---|--------|-----------|----------------|
 | 09 | `09_dataviz_plotly.py` | Plotly bar/scatter/map/waterfall, chart design for executives | key Comex charts |
 | 10 | `10_ai_summary_claude.py` | Anthropic SDK, prompts, structured JSON output, API keys with `.env` | AI-written executive summary and comments on each chart |
-| 11 | `app/streamlit_app.py` | Streamlit layout, caching, filters, combining charts and AI text | **the dashboard deliverable** |
+| 11 | `app/comex/build_dashboard.py` | HTML dashboard built from the pipeline outputs: filters, charts and AI text | **the dashboard deliverable** |
 | 12 | `src/beauty_expansion/pipeline.py` | modules, imports, `main()`, one-command run | the automated pipeline: `python -m beauty_expansion.pipeline` |
 
 ---
@@ -105,7 +105,7 @@ in `src/beauty_expansion/config.py`.
 - [ ] 08 Profitability model
 - [ ] 09 Plotly charts
 - [ ] 10 Claude AI summary
-- [ ] 11 Streamlit dashboard
+- [ ] 11 Comex dashboard
 - [ ] 12 Automated pipeline
 - [ ] README deliverable complete
 - [ ] Comex slides
