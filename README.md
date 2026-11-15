@@ -10,7 +10,7 @@
 > store economics (NPV €90 M, payback 4.5 years) but a smaller, harder-to-supply market.
 
 _All figures are produced by the pipeline (`python -m beauty_expansion.pipeline`) and shown in the Comex dashboards and slide deck (`app/comex/`).
-Data collected 2026-11-11/12._
+Data collected 2026-11-11 to 13._
 
 ---
 
@@ -221,8 +221,8 @@ Utrecht) that must reach at least the 70 % of mature sales the model assumes in 
 ICI Paris XL and Douglas, plus securing the ~9 % of sales currently held by exclusive local distributors.
 
 ### Fragrance deep-dive
-Fragrance is Sephora's core category. This section looks at it on its own (dashboard tab "🌸 Fragrance", a slide in
-the Comex deck).
+Fragrance is Sephora's core category. This section looks at it on its own (Parfum and Concurrence tabs of
+`app/comex/dashboard_comex.html`, slides 8 to 11 of the Comex deck).
 
 **Does the Netherlands stay first when fragrance is scored?** Yes. In the "Fragrance focus" scenario the Market axis is
 measured on the fragrance market instead of total personal care. The Netherlands still wins (78.1), 6.8 points ahead of
@@ -317,7 +317,7 @@ python -m beauty_expansion.pipeline        # ~2 min with cache, ~15 min first ru
 python app/comex/build_dashboard.py        # rebuilds the offline Comex dashboards and the slide deck
 ```
 
-Change an assumption in `src/beauty_expansion/config.py` (weights, rents, ramp-up, WACC…), re-run, and the dashboard updates.
+Change an assumption in `src/beauty_expansion/config.py` (weights, rents, ramp-up, WACC…), re-run the pipeline, then `python app/comex/build_dashboard.py`, and the dashboards and deck update.
 
 ## Repository map
 ```

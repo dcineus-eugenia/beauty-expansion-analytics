@@ -59,8 +59,8 @@ python lessons/00_python_refresher.py
 
 | # | Script | You learn | Project output |
 |---|--------|-----------|----------------|
-| 09 | `09_dataviz_plotly.py` | Plotly bar/scatter/map/waterfall, chart design for executives | key Comex charts |
-| 10 | `10_ai_summary_claude.py` | Anthropic SDK, prompts, structured JSON output, API keys with `.env` | AI-written executive summary and comments on each chart |
+| 09 | `app/comex/template.html` | SVG bar, line and dumbbell charts drawn by hand, chart design for executives | key Comex charts |
+| 10 | `10_ai_summary_claude.py` | Anthropic SDK, prompts, structured JSON output, API keys with `.env` | AI-written executive summary (Synthèse IA tab of the dashboard) |
 | 11 | `app/comex/build_dashboard.py` | HTML dashboard built from the pipeline outputs: filters, charts and AI text | **the dashboard deliverable** |
 | 12 | `src/beauty_expansion/pipeline.py` | modules, imports, `main()`, one-command run | the automated pipeline: `python -m beauty_expansion.pipeline` |
 
@@ -103,7 +103,7 @@ in `src/beauty_expansion/config.py`.
 - [ ] 06 Star schema (SQL)
 - [ ] 07 KPIs & country scoring
 - [ ] 08 Profitability model
-- [ ] 09 Plotly charts
+- [ ] 09 SVG charts
 - [ ] 10 Claude AI summary
 - [ ] 11 Comex dashboard
 - [ ] 12 Automated pipeline
