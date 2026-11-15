@@ -1,9 +1,11 @@
 # European Expansion Study: Sephora 2027–2029
 
+**Eugenia School · Data Analytics · Group 9**
+
 > **Comex question:** is opening Sephora stores in a new European country feasible and profitable?
 >
 > **Answer:** **CONDITIONAL GO for the Netherlands**, with a 15-store plan (3 → 8 → 15 stores, 2027–2029).
-> It ranks first under all 5 weightings tested. Base-case NPV **€76 M**, still positive if sales come in 20 % below
+> It ranks first under all 6 weightings tested. Base-case NPV **€76 M**, still positive if sales come in 20 % below
 > plan (€20 M), but store payback is **4.9 years**, above the 4-year target. **Ireland is the Plan B**: better
 > store economics (NPV €90 M, payback 4.5 years) but a smaller, harder-to-supply market.
 
@@ -22,7 +24,7 @@ Data collected 2026-11-11/12._
 | **France revenue** | **€2,511 M** in 2024 (Sephora SAS filed accounts), about **6.9 %** of French household personal-care spending (Eurostat) |
 | **Group context** | LVMH Selective Retailing: €18.3 bn revenue in 2025, 9.7 % operating margin (up from 4.5 % in 2021), 59,416 employees. Growth slowed from +26 % (2022) to +0.5 % (2025), which supports the case for new markets. |
 | **Target country** | **Netherlands** (chosen by the model among 5 candidates, see §4) |
-| **Team** | _First name LAST NAME_ (role), _First name LAST NAME_ (role), _First name LAST NAME_ (role) |
+| **Team** | **Group 9**: Damien, Kevin, Stephen, Jude, Natalia (roles in §5) |
 
 **How the candidates were chosen.** Expansion means a country with **no Sephora store** today. We checked OpenStreetMap
 and the press. Germany (since 2017), Belgium (opened June 2026), Luxembourg, Switzerland, Sweden and Denmark already
@@ -182,8 +184,8 @@ How this changes the ranking is covered by the fragrance deep-dive (issue #5).
 Network 20 % (catchment density 10, rent 10) · Operations 15 % (hub distance 8, trade friction 7) · Assortment 15 % (eligible catalogue 8, category share 7).
 Market gets the most weight because it caps achievable revenue. Margin is one KPI, so the price level isn't counted twice.
 
-**Robustness:** the Netherlands stays first under all 5 weightings tested (base, market first, margin first,
-low risk / operations, equal weights), 4.8 to 13.5 points ahead of the runner-up.
+**Robustness:** the Netherlands stays first under all 6 weightings tested (base, market first, margin first,
+low risk / operations, equal weights, fragrance focus), 4.8 to 13.5 points ahead of the runner-up.
 
 ### Key insights
 - **The Netherlands has the biggest market** (€12.8 bn of personal-care spending, +5.8 %/yr since 2019, €710 per head vs €530 in France), the **best margin after tax** (45.6 %, the same as France) and the **easiest supply**: 219 km on average from the Düren hub, which already serves Sephora Germany.
