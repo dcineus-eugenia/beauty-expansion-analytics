@@ -111,6 +111,15 @@
   dl.method { display: grid; grid-template-columns: minmax(160px, 220px) minmax(0, 1fr); gap: 16px 32px; margin: 0; max-width: 980px; }
   dl.method dt { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; padding-top: 2px; }
   dl.method dd { margin: 0; line-height: 1.6; color: #2b2927; max-width: 70ch; }
+  .ai { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 40px; }
+  .ai .hl { font-family: var(--serif); font-size: 24px; line-height: 1.25; margin: 0 0 14px; }
+  .ai p { margin: 0; line-height: 1.65; max-width: 75ch; }
+  .ai h3 { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500; color: var(--muted); margin: 0 0 6px; }
+  .ai ul { margin: 0 0 16px; padding-left: 16px; line-height: 1.55; }
+  .ai .src { display: block; margin-top: 14px; font-size: 11px; color: var(--muted); }
+  .ai .src.bad { color: var(--alert); }
+  p.aihow { margin: 0; line-height: 1.65; max-width: 90ch; color: #2b2927; }
+  @media (max-width: 900px) { .ai { grid-template-columns: minmax(0, 1fr); } }
   footer.foot { font-size: 11px; color: var(--paper); opacity: .8; letter-spacing: .04em; line-height: 1.6; }
 
   @media (max-width: 900px) {
@@ -170,6 +179,7 @@
     <button type="button" role="tab" data-tab="parfum" data-i18n="t_fprice">Parfum</button>
     <button type="button" role="tab" data-tab="rentabilite" data-i18n="t_profit">Rentabilité</button>
     <button type="button" role="tab" data-tab="concurrence" data-i18n="t_comp">Concurrence</button>
+    <button type="button" role="tab" data-tab="ia" data-i18n="t_ai">Synthèse IA</button>
     <button type="button" role="tab" data-tab="instructions" data-i18n="t_method">Instructions</button>
   </nav>
 
@@ -263,16 +273,6 @@
       <h2><span data-i18n="h_fsum">Relevé LOOKFANTASTIC</span><span class="note" data-i18n="no_nordics">Pas de site en Finlande ni en Norvège</span></h2>
       <div class="tw"><table id="tbFSum"></table></div>
     </div>
-    <h3 class="sub" data-i18n="s_fcomp">Concurrence parfum</h3>
-    <div class="legend"><span><i class="grey"></i><span data-i18n="lg_cand">Pays candidat</span></span><span><i></i><span data-i18n="lg_sel">Pays sélectionné</span></span><span><i class="dash"></i><span data-i18n="lg_fr">France (référence)</span></span></div>
-    <div class="grid2">
-      <div class="block"><h2><span data-i18n="h_perf">Parfumeries</span><span class="note" data-i18n="per100k">/100 000 hab., 5 grandes villes</span></h2><div class="chart" id="chPerf"></div></div>
-      <div class="block"><h2><span data-i18n="h_top3">Part des 3 premières chaînes</span><span class="note">%</span></h2><div class="chart" id="chTop3"></div></div>
-    </div>
-    <div class="block">
-      <h2><span data-i18n="h_fragr">Concurrence parfum</span></h2>
-      <div class="tw"><table id="tbFrag"></table></div>
-    </div>
   </section>
 
   <!-- RENTABILITE -->
@@ -298,11 +298,38 @@
     <div class="legend"><span><i class="grey"></i><span data-i18n="lg_cand">Pays candidat</span></span><span><i></i><span data-i18n="lg_sel">Pays sélectionné</span></span><span><i class="dash"></i><span data-i18n="lg_fr">France (référence)</span></span></div>
     <div class="grid2">
       <div class="block"><h2><span data-i18n="h_sel">Magasins beauté sélective</span><span class="note" data-i18n="per100k">/100 000 hab., 5 grandes villes</span></h2><div class="chart" id="chSel"></div></div>
-      <div class="block"><h2><span data-i18n="h_lead">Chaîne leader</span><span class="note" data-i18n="lead_note">% des magasins sélectifs</span></h2><div class="tw"><table id="tbLead"></table></div></div>
+      <div class="block"><h2><span data-i18n="h_perf">Parfumeries</span><span class="note" data-i18n="per100k">/100 000 hab., 5 grandes villes</span></h2><div class="chart" id="chPerf"></div></div>
+    </div>
+    <div class="block">
+      <h2><span data-i18n="h_fragr">Concurrence parfum</span></h2>
+      <div class="tw"><table id="tbFrag"></table></div>
     </div>
   </section>
 
   <!-- INSTRUCTIONS -->
+  <section class="tab" id="ia" role="tabpanel" hidden>
+    <div class="block">
+      <h2><span data-i18n="h_ai">Synthèse rédigée par l'IA</span><span class="note" id="aiNote">—</span></h2>
+      <div class="ai">
+        <div>
+          <p class="hl" id="aiHead"></p>
+          <p id="aiSum"></p>
+          <span class="src" id="aiSrc"></span>
+        </div>
+        <div>
+          <h3 data-i18n="ai_ins">Points clés</h3><ul id="aiIns"></ul>
+          <h3 data-i18n="ai_cond">Conditions de succès</h3><ul id="aiCond"></ul>
+          <h3 data-i18n="ai_risks">Risques</h3><ul id="aiRisks"></ul>
+          <h3 data-i18n="ai_next">Next steps</h3><ul id="aiNext"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="block">
+      <h2><span data-i18n="h_aihow">Comment l'IA est utilisée</span></h2>
+      <p class="aihow" data-i18n="ai_how">Claude reçoit uniquement les résultats calculés par le pipeline : KPIs, classement, tests de sensibilité, business case et décision. Il rédige une synthèse au format imposé. Il ne peut citer aucun autre chiffre, et le pays comme la recommandation viennent de la règle de décision écrite, pas de l'IA. Sans clé API, une version rédigée par règles prend le relais et cette page l'indique.</p>
+    </div>
+  </section>
+
   <section class="tab" id="instructions" role="tabpanel" hidden>
     <dl class="method" id="method"></dl>
   </section>
@@ -313,13 +340,14 @@
 </div></div>
 
 <script>
-const DATA = /*__DATA__*/null;
+const DATA = {"fcheck": {"scores": [{"code": "NL", "score": 78.07802978216205}, {"code": "IE", "score": 71.23531216371626}, {"code": "AT", "score": 63.561000812811685}, {"code": "FI", "score": 41.6796977289686}, {"code": "NO", "score": 34.43594002939879}], "breakevenFactor": 0.5837420272339657, "nlImportsMeur": 1914.442851, "nlExportsMeur": 1457.350924, "nlConsumptionMeur": 457.091927}, "decision": {"target": "NL", "target_name": "Netherlands", "recommendation": "CONDITIONAL GO", "selection_rule": "highest attractiveness score, 4.8 points ahead", "checks": {"npv_positive": true, "payback_within_limit": false, "pessimistic_npv_positive": true}, "base_npv_meur": 76.2, "pessimistic_npv_meur": 20.0, "payback_years": 4.94}, "maxPayback": 4.0, "frStores": 330, "frRevenue": 2511, "claudeModel": "claude-opus-5-5", "ai": {"recommendation": "CONDITIONAL GO", "target_country": "Netherlands", "headline": "CONDITIONAL GO for Netherlands: base-case NPV 76 M€, store payback 4.9 years.", "executive_summary": "[Rule-based summary: set ANTHROPIC_API_KEY to generate the AI version.] Netherlands was selected (highest attractiveness score, 4.8 points ahead). A 15-store plan reaches 79 M€ revenue in 2029 for 35 M€ invested. Conditions not met: payback within limit.", "key_insights": [{"title": "Ranking", "detail": "Netherlands: 80, Austria: 75, Ireland: 74, Finland: 34, Norway: 27"}], "risks": ["Internal data is simulated", "OpenStreetMap store coverage is incomplete"], "conditions_for_success": ["Store payback below 4 years"], "next_steps": ["Validate rents with local brokers", "Pilot 3 stores in 2027"], "chart_comments": {"ranking": "", "market": "", "price_margin": "", "network": "", "business_case": "", "sensitivity": ""}, "generated_by": "rule-based"}, "ranking": [{"code": "NL", "score": 79.7412358562, "market": 85.6208968805, "margin": 100.0, "network": 31.6573556797, "logistics": 100.0, "assortment": 84.8233043738}, {"code": "AT", "score": 74.9215642887, "market": 75.0639933441, "margin": 97.8452805585, "network": 33.5056885348, "logistics": 78.4019795259, "assortment": 95.812503586}, {"code": "IE", "score": 74.4368392891, "market": 67.0237353243, "margin": 73.1133015075, "network": 79.0502793296, "logistics": 63.9800168289, "assortment": 95.3333333333}, {"code": "FI", "score": 33.951619657, "market": 0.0244251861, "margin": 15.1790111202, "network": 81.7558486082, "logistics": 53.1932436016, "assortment": 43.8555574348}, {"code": "NO", "score": 26.7118269848, "market": 34.2853584913, "margin": 0.0, "network": 82.1310971871, "logistics": 0.0, "assortment": 0.0}], "case": [{"code": "NL", "scenario": "pessimistic", "store_revenue_meur": 5.077338432, "store_ebitda_margin": 0.0659515879, "payback_years": 9.7671541168, "plan_revenue_2029_meur": 62.9589965566, "plan_capex_meur": 34.8895013137, "plan_npv_meur": 19.9956771577}, {"code": "NL", "scenario": "base", "store_revenue_meur": 6.34667304, "store_ebitda_margin": 0.1160907405, "payback_years": 4.9396279151, "plan_revenue_2029_meur": 78.6987456957, "plan_capex_meur": 34.8895013137, "plan_npv_meur": 76.1741034433}, {"code": "NL", "scenario": "optimistic", "store_revenue_meur": 6.981340344, "store_ebitda_margin": 0.1343231597, "payback_years": 4.0114957355, "plan_revenue_2029_meur": 86.5686202653, "plan_capex_meur": 34.8895013137, "plan_npv_meur": 103.8148584472}, {"code": "AT", "scenario": "pessimistic", "store_revenue_meur": 5.506318647, "store_ebitda_margin": -0.0189642026, "payback_years": null, "plan_revenue_2029_meur": 68.2783512226, "plan_capex_meur": 36.0071640951, "plan_npv_meur": -58.7427995341}, {"code": "AT", "scenario": "base", "store_revenue_meur": 6.8828983087, "store_ebitda_margin": 0.0478501384, "payback_years": null, "plan_revenue_2029_meur": 85.3479390282, "plan_capex_meur": 36.0071640951, "plan_npv_meur": 16.1943374305}, {"code": "AT", "scenario": "optimistic", "store_revenue_meur": 7.5711881396, "store_ebitda_margin": 0.0721462623, "payback_years": 6.947375062, "plan_revenue_2029_meur": 93.8827329311, "plan_capex_meur": 36.0071640951, "plan_npv_meur": 47.9630015127}, {"code": "IE", "scenario": "pessimistic", "store_revenue_meur": 5.260508683, "store_ebitda_margin": 0.0702906418, "payback_years": 8.6631050029, "plan_revenue_2029_meur": 65.2303076696, "plan_capex_meur": 35.8173023533, "plan_npv_meur": 27.8271775271}, {"code": "IE", "scenario": "base", "store_revenue_meur": 6.5756358538, "store_ebitda_margin": 0.1157191204, "payback_years": 4.5286556398, "plan_revenue_2029_meur": 81.537884587, "plan_capex_meur": 35.8173023533, "plan_npv_meur": 89.8164293407}, {"code": "IE", "scenario": "optimistic", "store_revenue_meur": 7.2331994392, "store_ebitda_margin": 0.1322385671, "payback_years": 3.7104057982, "plan_revenue_2029_meur": 89.6916730457, "plan_capex_meur": 35.8173023533, "plan_npv_meur": 120.5958893757}, {"code": "FI", "scenario": "pessimistic", "store_revenue_meur": 4.0200686186, "store_ebitda_margin": 0.0501950118, "payback_years": null, "plan_revenue_2029_meur": 49.8488508709, "plan_capex_meur": 33.3581239971, "plan_npv_meur": 4.6381832974}, {"code": "FI", "scenario": "base", "store_revenue_meur": 5.0250857733, "store_ebitda_margin": 0.0913621814, "payback_years": 6.5762242839, "plan_revenue_2029_meur": 62.3110635886, "plan_capex_meur": 33.3581239971, "plan_npv_meur": 43.5702708647}, {"code": "FI", "scenario": "optimistic", "store_revenue_meur": 5.5275943506, "store_ebitda_margin": 0.1063320612, "payback_years": 5.2870731471, "plan_revenue_2029_meur": 68.5421699474, "plan_capex_meur": 33.3581239971, "plan_npv_meur": 62.6943127938}, {"code": "NO", "scenario": "pessimistic", "store_revenue_meur": 3.6824040244, "store_ebitda_margin": -0.0517447786, "payback_years": null, "plan_revenue_2029_meur": 45.6618099025, "plan_capex_meur": 32.5992779416, "plan_npv_meur": -68.1214267506}, {"code": "NO", "scenario": "base", "store_revenue_meur": 4.6030050305, "store_ebitda_margin": 0.0076408427, "payback_years": null, "plan_revenue_2029_meur": 57.0772623782, "plan_capex_meur": 32.5992779416, "plan_npv_meur": -26.3366994127}, {"code": "NO", "scenario": "optimistic", "store_revenue_meur": 5.0633055335, "store_ebitda_margin": 0.029235614, "payback_years": null, "plan_revenue_2029_meur": 62.784988616, "plan_capex_meur": 32.5992779416, "plan_npv_meur": -5.4443357437}], "plan": [{"code": "NL", "year": 2027, "stores_open": 3, "revenue_meur": 13.3280133839, "fcf_meur": -6.5762218298}, {"code": "NL", "year": 2028, "stores_open": 8, "revenue_meur": 39.3493728479, "fcf_meur": -9.5597966566}, {"code": "NL", "year": 2029, "stores_open": 15, "revenue_meur": 78.6987456957, "fcf_meur": -11.2447943127}, {"code": "NL", "year": 2030, "stores_open": 15, "revenue_meur": 90.7574244717, "fcf_meur": 7.8701876979}, {"code": "NL", "year": 2031, "stores_open": 15, "revenue_meur": 95.2000955996, "fcf_meur": 8.9140036514}, {"code": "AT", "year": 2027, "stores_open": 3, "revenue_meur": 14.4540864483, "fcf_meur": -8.1653575135}, {"code": "AT", "year": 2028, "stores_open": 8, "revenue_meur": 42.6739695141, "fcf_meur": -13.2715421479}, {"code": "AT", "year": 2029, "stores_open": 15, "revenue_meur": 85.3479390282, "fcf_meur": -17.5021462203}, {"code": "AT", "year": 2030, "stores_open": 15, "revenue_meur": 98.4254458148, "fcf_meur": 3.2710472408}, {"code": "AT", "year": 2031, "stores_open": 15, "revenue_meur": 103.2434746309, "fcf_meur": 4.44005895}, {"code": "IE", "year": 2027, "stores_open": 3, "revenue_meur": 13.808835293, "fcf_meur": -6.6409102744}, {"code": "IE", "year": 2028, "stores_open": 8, "revenue_meur": 40.7689422935, "fcf_meur": -9.535939896}, {"code": "IE", "year": 2029, "stores_open": 15, "revenue_meur": 81.537884587, "fcf_meur": -10.9204237206}, {"code": "IE", "year": 2030, "stores_open": 15, "revenue_meur": 94.0315927092, "fcf_meur": 8.9529526709}, {"code": "IE", "year": 2031, "stores_open": 15, "revenue_meur": 98.6345378069, "fcf_meur": 10.1166604105}, {"code": "FI", "year": 2027, "stores_open": 3, "revenue_meur": 10.5526801239, "fcf_meur": -6.4522357335}, {"code": "FI", "year": 2028, "stores_open": 8, "revenue_meur": 31.1555317943, "fcf_meur": -9.7623909381}, {"code": "FI", "year": 2029, "stores_open": 15, "revenue_meur": 62.3110635886, "fcf_meur": -12.1808461813}, {"code": "FI", "year": 2030, "stores_open": 15, "revenue_meur": 71.8587265578, "fcf_meur": 5.3418754379}, {"code": "FI", "year": 2031, "stores_open": 15, "revenue_meur": 75.3762865991, "fcf_meur": 6.0623585753}, {"code": "NO", "year": 2027, "stores_open": 3, "revenue_meur": 9.666310564, "fcf_meur": -7.4300651583}, {"code": "NO", "year": 2028, "stores_open": 8, "revenue_meur": 28.5386311891, "fcf_meur": -12.616503446}, {"code": "NO", "year": 2029, "stores_open": 15, "revenue_meur": 57.0772623782, "fcf_meur": -17.61974205}, {"code": "NO", "year": 2030, "stores_open": 15, "revenue_meur": 65.8229719361, "fcf_meur": -0.2624435046}, {"code": "NO", "year": 2031, "stores_open": 15, "revenue_meur": 69.0450754574, "fcf_meur": 0.5275625589}], "kpis": [{"code": "FR", "market_size_meur": 36546.7, "market_cagr": 0.0284428096, "spend_per_capita_eur": 530.0, "gross_margin_post_tax": 0.455885137, "catchment_density_per_100k": 7.6016983975, "prime_rent_eur_m2": 12519.0, "hub_distance_km": 361.2792127921, "catalogue_eligible_pct": 100.0, "leader_brand": "Yves Rocher", "leader_store_share": 0.4163591636, "vat_standard_rate": 0.2, "labour_cost_retail_eur_h": 38.1, "relative_price_index": 100.0, "scraped_price_index": 100.0, "effective_price_index": 100.0, "scraped_products": 17.0, "fragrance_market_meur": null, "fragrance_per_capita_eur": null, "fragrance_cagr": null}, {"code": "NL", "market_size_meur": 12780.0, "market_cagr": 0.0578078794, "spend_per_capita_eur": 710.0, "gross_margin_post_tax": 0.4562280228, "catchment_density_per_100k": 4.6032458729, "prime_rent_eur_m2": 2800.0, "hub_distance_km": 218.6175066313, "catalogue_eligible_pct": 91.367711075, "leader_brand": "ICI PARIS XL", "leader_store_share": 0.374005305, "vat_standard_rate": 0.21, "labour_cost_retail_eur_h": 38.5, "relative_price_index": 116.7326732673, "scraped_price_index": 100.0, "effective_price_index": 100.0, "scraped_products": 17.0, "fragrance_market_meur": 457.091927, "fragrance_per_capita_eur": 25.3320351937, "fragrance_cagr": 0.1625640377}, {"code": "AT", "market_size_meur": 7059.4, "market_cagr": 0.0549450748, "spend_per_capita_eur": 770.0, "gross_margin_post_tax": 0.4546881736, "catchment_density_per_100k": 2.2696521322, "prime_rent_eur_m2": 5520.0, "hub_distance_km": 729.5302325581, "catalogue_eligible_pct": 95.6317837874, "leader_brand": "Marionnaud", "leader_store_share": 0.4108527132, "vat_standard_rate": 0.2, "labour_cost_retail_eur_h": 41.4, "relative_price_index": 112.3762376238, "scraped_price_index": 100.0, "effective_price_index": 100.0, "scraped_products": 17.0, "fragrance_market_meur": 220.356786, "fragrance_per_capita_eur": 23.9590826047, "fragrance_cagr": 0.0742874682}, {"code": "IE", "market_size_meur": 3837.7, "market_cagr": 0.0644211634, "spend_per_capita_eur": 700.0, "gross_margin_post_tax": 0.4370137062, "catchment_density_per_100k": 1.1208614737, "prime_rent_eur_m2": 3024.0, "hub_distance_km": 1070.6894736842, "catalogue_eligible_pct": 98.4559351956, "leader_brand": "Rituals", "leader_store_share": 0.5263157895, "vat_standard_rate": 0.23, "labour_cost_retail_eur_h": 32.1, "relative_price_index": 135.3465346535, "scraped_price_index": 100.0, "effective_price_index": 100.0, "scraped_products": 17.0, "fragrance_market_meur": 156.511885, "fragrance_per_capita_eur": 28.7690969101, "fragrance_cagr": 0.1286593803}, {"code": "FI", "market_size_meur": 2854.0, "market_cagr": 0.024860904, "spend_per_capita_eur": 510.0, "gross_margin_post_tax": 0.3956115313, "catchment_density_per_100k": 2.3915244374, "prime_rent_eur_m2": 1224.0, "hub_distance_km": 1325.8563636364, "catalogue_eligible_pct": 79.4746253039, "leader_brand": "KICKS", "leader_store_share": 0.3636363636, "vat_standard_rate": 0.255, "labour_cost_retail_eur_h": 37.1, "relative_price_index": 127.7227722772, "scraped_price_index": null, "effective_price_index": 100.0, "scraped_products": null, "fragrance_market_meur": 42.748285, "fragrance_per_capita_eur": 7.5849015192, "fragrance_cagr": 0.1636017793}, {"code": "NO", "market_size_meur": 2844.9, "market_cagr": 0.0575013889, "spend_per_capita_eur": 520.0, "gross_margin_post_tax": 0.3847639992, "catchment_density_per_100k": 1.690150367, "prime_rent_eur_m2": 2057.0, "hub_distance_km": 1480.246031746, "catalogue_eligible_pct": 62.4866128254, "leader_brand": "KICKS", "leader_store_share": 0.3333333333, "vat_standard_rate": 0.25, "labour_cost_retail_eur_h": 49.1, "relative_price_index": 144.8514851485, "scraped_price_index": null, "effective_price_index": 100.0, "scraped_products": null, "fragrance_market_meur": 100.4512073601, "fragrance_per_capita_eur": 17.9558638481, "fragrance_cagr": 0.2128415124}], "fragrance": [{"code": "FR", "perfumeries": 1738, "perfumeries_per_100k": 2.523, "top3_share": 0.512, "leader": "Nocibé", "fragrance_skus_eligible_pct": 100.0, "perfumeries_per_100k_top5_cities": 9.359, "independent_share": 0.349, "small_sample": false, "fragrance_skus_source": "simulated internal catalogue"}, {"code": "NL", "perfumeries": 382, "perfumeries_per_100k": 2.117, "top3_share": 0.618, "leader": "ICI PARIS XL", "fragrance_skus_eligible_pct": 89.983, "perfumeries_per_100k_top5_cities": 4.384, "independent_share": 0.382, "small_sample": false, "fragrance_skus_source": "simulated internal catalogue"}, {"code": "AT", "perfumeries": 156, "perfumeries_per_100k": 1.696, "top3_share": 0.571, "leader": "Marionnaud", "fragrance_skus_eligible_pct": 94.819, "perfumeries_per_100k_top5_cities": 3.143, "independent_share": 0.429, "small_sample": false, "fragrance_skus_source": "simulated internal catalogue"}, {"code": "IE", "perfumeries": 16, "perfumeries_per_100k": 0.294, "top3_share": 0.25, "leader": "The Perfume Shop", "fragrance_skus_eligible_pct": 98.618, "perfumeries_per_100k_top5_cities": 0.917, "independent_share": 0.75, "small_sample": true, "fragrance_skus_source": "simulated internal catalogue"}, {"code": "FI", "perfumeries": 23, "perfumeries_per_100k": 0.408, "top3_share": 0.913, "leader": "KICKS", "fragrance_skus_eligible_pct": 82.383, "perfumeries_per_100k_top5_cities": 0.854, "independent_share": 0.087, "small_sample": true, "fragrance_skus_source": "simulated internal catalogue"}, {"code": "NO", "perfumeries": 51, "perfumeries_per_100k": 0.912, "top3_share": 0.706, "leader": "KICKS", "fragrance_skus_eligible_pct": 54.577, "perfumeries_per_100k_top5_cities": 1.229, "independent_share": 0.294, "small_sample": true, "fragrance_skus_source": "simulated internal catalogue"}], "fprices": [{"code": "AT", "vat_standard_rate": 0.2, "n_products": 316, "n_brands": 7, "median_price_eur": 94.01, "median_price_per_ml": 1.371, "median_price_ex_vat_per_ml": 1.143, "median_discount_pct": 24.996, "n_products_matched_fr": 233, "price_index_vs_fr": 100.0, "price_ex_vat_index_vs_fr": 100.0}, {"code": "FR", "vat_standard_rate": 0.2, "n_products": 308, "n_brands": 9, "median_price_eur": 94.01, "median_price_per_ml": 1.38, "median_price_ex_vat_per_ml": 1.15, "median_discount_pct": 20.0, "n_products_matched_fr": 308, "price_index_vs_fr": 100.0, "price_ex_vat_index_vs_fr": 100.0}, {"code": "IE", "vat_standard_rate": 0.23, "n_products": 395, "n_brands": 9, "median_price_eur": 94.01, "median_price_per_ml": 1.38, "median_price_ex_vat_per_ml": 1.122, "median_discount_pct": 24.994, "n_products_matched_fr": 291, "price_index_vs_fr": 100.0, "price_ex_vat_index_vs_fr": 97.561}, {"code": "NL", "vat_standard_rate": 0.21, "n_products": 408, "n_brands": 9, "median_price_eur": 94.76, "median_price_per_ml": 1.38, "median_price_ex_vat_per_ml": 1.14, "median_discount_pct": 20.0, "n_products_matched_fr": 308, "price_index_vs_fr": 100.0, "price_ex_vat_index_vs_fr": 99.174}], "fmarketYear": 2025, "sensitivity": [{"scenario": "Base case (README weights)", "winner": "NL", "runner_up": "AT", "winner_score": 79.7, "gap_to_runner_up": 4.8}, {"scenario": "Market first", "winner": "NL", "runner_up": "AT", "winner_score": 83.2, "gap_to_runner_up": 9.6}, {"scenario": "Margin first", "winner": "NL", "runner_up": "IE", "winner_score": 83.8, "gap_to_runner_up": 13.5}, {"scenario": "Low risk / operations", "winner": "NL", "runner_up": "AT", "winner_score": 86.8, "gap_to_runner_up": 7.0}, {"scenario": "Equal weights", "winner": "NL", "runner_up": "IE", "winner_score": 79.4, "gap_to_runner_up": 5.7}, {"scenario": "Fragrance focus", "winner": "NL", "runner_up": "IE", "winner_score": 78.1, "gap_to_runner_up": 6.8}], "nStores": 6421, "fbrands": [{"brand": "Carolina Herrera", "code": "FR", "price_per_ml": 1.6906}, {"brand": "Carolina Herrera", "code": "IE", "price_per_ml": 1.6906}, {"brand": "Carolina Herrera", "code": "NL", "price_per_ml": 1.6906}, {"brand": "Giorgio Armani", "code": "AT", "price_per_ml": 1.2894388889}, {"brand": "Giorgio Armani", "code": "FR", "price_per_ml": 1.2851}, {"brand": "Giorgio Armani", "code": "IE", "price_per_ml": 1.2894388889}, {"brand": "Giorgio Armani", "code": "NL", "price_per_ml": 1.2894388889}, {"brand": "Hugo Boss", "code": "AT", "price_per_ml": 1.2765}, {"brand": "Hugo Boss", "code": "FR", "price_per_ml": 1.2851}, {"brand": "Hugo Boss", "code": "IE", "price_per_ml": 1.2409}, {"brand": "Hugo Boss", "code": "NL", "price_per_ml": 1.1989}, {"brand": "Jean Paul Gaultier", "code": "FR", "price_per_ml": 1.3616}, {"brand": "Jean Paul Gaultier", "code": "IE", "price_per_ml": 1.4812}, {"brand": "Jean Paul Gaultier", "code": "NL", "price_per_ml": 1.3616}, {"brand": "Lancôme", "code": "AT", "price_per_ml": 1.3815}, {"brand": "Lancôme", "code": "FR", "price_per_ml": 1.5296}, {"brand": "Lancôme", "code": "IE", "price_per_ml": 1.5457}, {"brand": "Lancôme", "code": "NL", "price_per_ml": 1.3815}, {"brand": "Paco Rabanne", "code": "AT", "price_per_ml": 1.1698125}, {"brand": "Paco Rabanne", "code": "FR", "price_per_ml": 1.3248}, {"brand": "Paco Rabanne", "code": "IE", "price_per_ml": 1.153625}, {"brand": "Paco Rabanne", "code": "NL", "price_per_ml": 1.153625}, {"brand": "Prada", "code": "AT", "price_per_ml": 1.3984}, {"brand": "Prada", "code": "FR", "price_per_ml": 1.38}, {"brand": "Prada", "code": "IE", "price_per_ml": 1.3984}, {"brand": "Prada", "code": "NL", "price_per_ml": 1.3984}, {"brand": "Valentino", "code": "AT", "price_per_ml": 1.5026666667}, {"brand": "Valentino", "code": "FR", "price_per_ml": 1.5026666667}, {"brand": "Valentino", "code": "IE", "price_per_ml": 1.5456}, {"brand": "Valentino", "code": "NL", "price_per_ml": 1.5026666667}, {"brand": "Yves Saint Laurent", "code": "AT", "price_per_ml": 1.5452777778}, {"brand": "Yves Saint Laurent", "code": "FR", "price_per_ml": 1.5812222222}, {"brand": "Yves Saint Laurent", "code": "IE", "price_per_ml": 1.4854444444}, {"brand": "Yves Saint Laurent", "code": "NL", "price_per_ml": 1.5093333333}], "builtFrom": "2026-11-13"};
 
 const T = {
   fr: {
     eyebrow: "Europe 2027", title: "Où ouvrir Sephora en Europe ?", recommended: "Pays recommandé", recIs: (c) => `Pays recommandé : ${c}`, country: "Pays", scenario: "Scénario", lang: "Langue",
     sc_pess: "Ventes −20 %", sc_base: "Base", sc_opt: "Ventes +10 %",
     sc_long: { pessimistic: "Scénario ventes −20 %", base: "Scénario de base", optimistic: "Scénario ventes +10 %" },
+    t_ai: "Synthèse IA", h_ai: "Synthèse rédigée par l'IA", h_aihow: "Comment l'IA est utilisée", ai_ins: "Points clés", ai_cond: "Conditions de succès", ai_risks: "Risques", ai_next: "Next steps", ai_note: (m) => `Claude ${m} · chiffres du pipeline uniquement`, ai_rule: "Version de secours rédigée par règles : pas de clé API au moment du calcul. Texte en anglais.", ai_claude: (m) => `Rédigé par ${m}. Texte en anglais.`, ai_how: "Claude reçoit uniquement les résultats calculés par le pipeline : KPIs, classement, tests de sensibilité, business case et décision. Il rédige une synthèse au format imposé. Il ne peut citer aucun autre chiffre, et le pays comme la recommandation viennent de la règle de décision écrite, pas de l'IA. Sans clé API, une version rédigée par règles prend le relais et cette page l'indique.",
     t_summary: "Synthèse", t_market: "Marché", t_profit: "Rentabilité", t_comp: "Concurrence", t_method: "Instructions",
     t_price: "Prix et marge", t_fprice: "Parfum",
     s_fmarket: "Marché du parfum", s_fprice: "Prix des parfums", s_fcomp: "Concurrence parfum", h_fsize: "Consommation apparente", h_fcap: "Par habitant", h_fgrowth: "Croissance annuelle", since2019: "% /an depuis 2019", h_top3: "Part des 3 premières chaînes", h_lead: "Chaîne leader", lead_note: "% des magasins sélectifs", ld: { dens: "Magasins /100k", leader: "Leader", share: "Part du leader" },
@@ -364,6 +392,7 @@ const T = {
     eyebrow: "Europe 2027", title: "Where should Sephora open in Europe?", recommended: "Recommended country", recIs: (c) => `Recommended country: ${c}`, country: "Country", scenario: "Scenario", lang: "Language",
     sc_pess: "Sales −20%", sc_base: "Base", sc_opt: "Sales +10%",
     sc_long: { pessimistic: "Sales −20% scenario", base: "Base scenario", optimistic: "Sales +10% scenario" },
+    t_ai: "AI summary", h_ai: "Summary written by AI", h_aihow: "How AI is used", ai_ins: "Key points", ai_cond: "Conditions for success", ai_risks: "Risks", ai_next: "Next steps", ai_note: (m) => `Claude ${m} · pipeline figures only`, ai_rule: "Rule-based fallback: no API key at build time.", ai_claude: (m) => `Written by ${m}.`, ai_how: "Claude receives only the results computed by the pipeline: KPIs, ranking, sensitivity tests, business case and decision. It writes a summary in a fixed format. It can quote no other figure, and the country and recommendation come from the written decision rule, not from AI. Without an API key, a rule-based version takes over and this page says so.",
     t_summary: "Summary", t_market: "Market", t_profit: "Profitability", t_comp: "Competition", t_method: "Instructions",
     t_price: "Price & margin", t_fprice: "Fragrance",
     s_fmarket: "Fragrance market", s_fprice: "Fragrance prices", s_fcomp: "Fragrance competition", h_fsize: "Apparent consumption", h_fcap: "Per capita", h_fgrowth: "Annual growth", since2019: "% /yr since 2019", h_top3: "Top-3 chain share", h_lead: "Leading chain", lead_note: "% of selective stores", ld: { dens: "Stores /100k", leader: "Leader", share: "Leader share" },
@@ -718,9 +747,17 @@ function renderCompetition() {
   hbars($("chSel"), sel.map((r) => ({ code: r.code, value: r.catchment_density_per_100k, label: fmt(r.catchment_density_per_100k, 1),
     tip: `${nm(r.code)} : ${fmt(r.catchment_density_per_100k, 1)} · ${r.leader_brand} ${pct(r.leader_store_share * 100, 0)}` })),
     { ref: fr.catchment_density_per_100k, refLabel: fmt(fr.catchment_density_per_100k, 1), aria: tt.h_sel });
-  table($("tbLead"), [tt.col_country, tt.ld.dens, tt.ld.leader, tt.ld.share], [fr, ...sel].map((r) => ({
+  const fg = DATA.fragrance.filter((r) => r.code !== "FR").sort((a, b) => b.perfumeries_per_100k_top5_cities - a.perfumeries_per_100k_top5_cities);
+  hbars($("chPerf"), fg.map((r) => ({ code: r.code, value: r.perfumeries_per_100k_top5_cities, label: fmt(r.perfumeries_per_100k_top5_cities, 1),
+    tip: `${nm(r.code)} : ${fmt(r.perfumeries_per_100k_top5_cities, 1)} · ${r.perfumeries} ${tt.f.perf.toLowerCase()}` })),
+    { ref: frF.perfumeries_per_100k_top5_cities, refLabel: fmt(frF.perfumeries_per_100k_top5_cities, 1), aria: tt.h_perf });
+  const Fc = tt.f;
+  const all = [frF, ...DATA.fragrance.filter((r) => r.code !== "FR")];
+  table($("tbFrag"), [tt.col_country, Fc.perf, Fc.dens, Fc.top3, Fc.leader, Fc.elig, Fc.rel], all.map((r) => ({
     cls: rowCls(r.code),
-    cells: [r.code === "FR" ? `${nm("FR")} (${tt.ref})` : nm(r.code), fmt(r.catchment_density_per_100k, 1), r.leader_brand || "—", pct(r.leader_store_share * 100, 0)],
+    cells: [r.code === "FR" ? `${nm("FR")} (${tt.ref})` : nm(r.code), fmt(r.perfumeries, 0), fmt(r.perfumeries_per_100k_top5_cities, 1),
+      pct(r.top3_share * 100, 0), r.leader || "—", pct(r.fragrance_skus_eligible_pct, 0),
+      r.small_sample ? el("span", { class: "flag" }, tt.lowData) : tt.ok],
   })));
 }
 
@@ -772,23 +809,18 @@ function renderFragrancePrices() {
       r.code === "FR" ? "—" : fmt(r.n_products_matched_fr, 0), fmt(r.median_price_eur, 2) + " €", fmt(r.median_price_per_ml, 2), fmt(r.median_price_ex_vat_per_ml, 2),
       fmt(r.price_index_vs_fr, 0), fmt(r.price_ex_vat_index_vs_fr, 0), pct(r.median_discount_pct, 0)],
   })));
-  const frF = DATA.fragrance.find((r) => r.code === "FR");
-  const fg = DATA.fragrance.filter((r) => r.code !== "FR").sort((a, b) => b.perfumeries_per_100k_top5_cities - a.perfumeries_per_100k_top5_cities);
-  hbars($("chPerf"), fg.map((r) => ({ code: r.code, value: r.perfumeries_per_100k_top5_cities, label: fmt(r.perfumeries_per_100k_top5_cities, 1),
-    tip: `${nm(r.code)} : ${fmt(r.perfumeries_per_100k_top5_cities, 1)} · ${r.perfumeries} ${tt.f.perf.toLowerCase()}` })),
-    { ref: frF.perfumeries_per_100k_top5_cities, refLabel: fmt(frF.perfumeries_per_100k_top5_cities, 1), aria: tt.h_perf });
-  const Fc = tt.f;
-  const all = [frF, ...DATA.fragrance.filter((r) => r.code !== "FR")];
-  table($("tbFrag"), [tt.col_country, Fc.perf, Fc.dens, Fc.top3, Fc.leader, Fc.elig, Fc.rel], all.map((r) => ({
-    cls: rowCls(r.code),
-    cells: [r.code === "FR" ? `${nm("FR")} (${tt.ref})` : nm(r.code), fmt(r.perfumeries, 0), fmt(r.perfumeries_per_100k_top5_cities, 1),
-      pct(r.top3_share * 100, 0), r.leader || "—", pct(r.fragrance_skus_eligible_pct, 0),
-      r.small_sample ? el("span", { class: "flag" }, tt.lowData) : tt.ok],
-  })));
-  hbars($("chTop3"), [...fg].sort((a, b) => b.top3_share - a.top3_share).map((r) => ({ code: r.code, value: r.top3_share * 100, label: pct(r.top3_share * 100, 0),
-    tip: `${nm(r.code)} : ${pct(r.top3_share * 100, 0)} · ${r.leader || "—"}${r.small_sample ? " · " + tt.lowData : ""}` })),
-    { ref: frF.top3_share * 100, refLabel: pct(frF.top3_share * 100, 0), aria: tt.h_top3 });
+}
 
+function renderAI() {
+  const tt = t(), ai = DATA.ai, byRule = ai.generated_by === "rule-based";
+  const model = { "claude-opus-5-5": "Opus 5.5" }[DATA.claudeModel] || DATA.claudeModel;
+  $("aiNote").textContent = tt.ai_note(model);
+  $("aiHead").textContent = ai.headline;
+  $("aiSum").textContent = ai.executive_summary.replace(/^\[[^\]]*\]\s*/, "");
+  const src = $("aiSrc"); src.textContent = byRule ? tt.ai_rule : tt.ai_claude(ai.generated_by); src.className = "src" + (byRule ? " bad" : "");
+  const fill = (id, items) => $(id).replaceChildren(...(items || []).map((x) => el("li", {}, x)));
+  fill("aiIns", (ai.key_insights || []).map((k) => `${k.title} : ${k.detail}`));
+  fill("aiCond", ai.conditions_for_success); fill("aiRisks", ai.risks); fill("aiNext", ai.next_steps);
 }
 
 function render() {
@@ -799,6 +831,7 @@ function render() {
   if (S.tab === "parfum") renderFragrancePrices();
   if (S.tab === "rentabilite") renderProfit();
   if (S.tab === "concurrence") renderCompetition();
+  if (S.tab === "ia") renderAI();
   try { localStorage.setItem("sephora-dash", JSON.stringify({ lang: S.lang, tab: S.tab })); } catch (e) {}
 }
 

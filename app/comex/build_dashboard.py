@@ -1,6 +1,6 @@
 """Build the Comex dashboard: one self-contained HTML file, works offline.
 
-    python dashboard_comex/build_dashboard.py      # after python -m beauty_expansion.pipeline
+    python app/comex/build_dashboard.py      # after python -m beauty_expansion.pipeline
 
 Reads data/processed/*.csv, decision.json and ai_summary.json, injects them into the 3 templates and writes:
   dashboard_comex.html     dashboard with tabs
@@ -11,11 +11,12 @@ The HTML outputs are committed so the team can open them without running the pip
 import json
 import pathlib
 import re
+import sys
 
 import pandas as pd
 
 HERE = pathlib.Path(__file__).resolve().parent
-ROOT = HERE.parent
+ROOT = HERE.parents[1]      # app/comex/ -> repo root
 P = ROOT / "data" / "processed"
 
 
@@ -54,7 +55,40 @@ fragrance = pd.read_csv(P / "fragrance_competition.csv").rename(columns={"countr
 fprices = pd.read_csv(P / "fragrance_price_summary.csv").rename(columns={"country_code": "code"})   # Stephen, issue #3
 fitems = pd.read_csv(P / "fragrance_prices.csv").rename(columns={"country_code": "code"})
 
+# Natalia's robustness check (PR #10, analysis/fragrance_breakeven.py): "Fragrance focus" scores, and how far the Dutch
+# fragrance level (an upper bound, Rotterdam transit) can fall before Ireland overtakes. Same method: scale market size
+# and per-head together, growth unchanged, re-run scoring.rank, bisection.
+sys.path.insert(0, str(ROOT / "src"))
+from beauty_expansion import config  # noqa: E402
+from beauty_expansion.analysis import scoring  # noqa: E402
+
+kfull = pd.read_csv(P / "kpis_by_country.csv", index_col=0)
+
+
+def ffocus(factor: float) -> pd.Series:
+    k = kfull.copy()
+    k.loc["NL", ["fragrance_market_meur", "fragrance_per_capita_eur"]] *= factor
+    return scoring.rank(k, config.FRAGRANCE_FOCUS_WEIGHTS)["total_score"]
+
+
+lo, hi = 0.01, 1.0
+breakeven = None
+if ffocus(hi)["NL"] > ffocus(hi)["IE"] and ffocus(lo)["NL"] < ffocus(lo)["IE"]:
+    for _ in range(50):
+        mid = (lo + hi) / 2
+        lo, hi = (lo, mid) if ffocus(mid)["NL"] > ffocus(mid)["IE"] else (mid, hi)
+    breakeven = hi
+fm = pd.read_csv(P / "fragrance_market.csv")
+nl_trade = fm[(fm.country_code == "NL") & (fm.year == fm.year.max())].iloc[0]
+fcheck = {
+    "scores": [{"code": c, "score": float(v)} for c, v in ffocus(1.0).items()],
+    "breakevenFactor": breakeven,
+    "nlImportsMeur": float(nl_trade.imports_eur / 1e6), "nlExportsMeur": float(nl_trade.exports_eur / 1e6),
+    "nlConsumptionMeur": float(nl_trade.apparent_consumption_eur / 1e6),
+}
+
 data = {
+    "fcheck": fcheck,
     "decision": json.loads((P / "decision.json").read_text()),
     "maxPayback": max_payback,
     "frStores": fr_stores, "frRevenue": fr_revenue, "claudeModel": claude_model,

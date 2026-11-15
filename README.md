@@ -301,7 +301,7 @@ years; the ranking and the decision didn't change. The same check fixed a text-e
 | Storage / modelling | **DuckDB** star schema (`sql/schema.sql`), file `data/processed/warehouse.duckdb` |
 | Analysis | Python modules in `src/beauty_expansion/analysis/` |
 | AI | Claude Opus 5.5 via the `anthropic` SDK, with structured JSON output and refusal fallback. A rule-based fallback runs without a key. |
-| DataViz | Plotly + **Streamlit** dashboard (`app/streamlit_app.py`). CSV exports in `data/processed/` for Power BI/Tableau users. |
+| DataViz | Plotly + **Streamlit** dashboard (`app/streamlit_app.py`). Offline HTML dashboards and slide deck for the Comex (`app/comex/`). CSV exports in `data/processed/` for Power BI/Tableau users. |
 | Versioning | Git |
 
 ## How to run
@@ -312,6 +312,7 @@ pip install -r requirements.txt && pip install -e .
 cp .env.example .env                       # optional: add ANTHROPIC_API_KEY for the AI summary
 python -m beauty_expansion.pipeline        # ~2 min with cache, ~15 min first run (--refresh to re-download)
 streamlit run app/streamlit_app.py         # opens the dashboard
+python app/comex/build_dashboard.py        # rebuilds the offline Comex dashboards and the slide deck
 ```
 
 Change an assumption in `src/beauty_expansion/config.py` (weights, rents, ramp-up, WACC…), re-run, and the dashboard updates.
@@ -328,6 +329,7 @@ src/beauty_expansion/
   pipeline.py           one command, end to end
 sql/schema.sql          star schema
 app/streamlit_app.py    dashboard
+app/comex/              offline Comex dashboards (tabs, one page) + 12-slide deck (HTML and PPTX), see app/comex/README.md
 tests/                  pytest suite (run on every pull request)
 docs/DATA_CONTRACTS.md  generated data dictionary of the output files
 data/manual/            hand-collected figures with sources (committed)
